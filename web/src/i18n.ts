@@ -11,7 +11,7 @@ const it = {
   "mission.metricsLabel": "Metriche missione",
   "sidebar.label": "Console e file della spedizione",
   "status.mode": "Modalità",
-  "mission.title": "Transetto CTD nel Mare del Nord",
+  "mission.title": "Stazione CTD nel Mare del Nord",
   "mission.level": "Triennale · Missione introduttiva",
   "mission.kicker": "MISSIONE 01 · MARE DEL NORD",
   "metric.route": "ROTTA",
@@ -23,7 +23,7 @@ const it = {
   "sidebar.terminal": "Terminale",
   "sidebar.yaml": "YAML",
   "sidebar.files": "File",
-  "status.prototype": "Prototipo UI · dati scientifici non validati",
+  "status.prototype": "Vertical slice · dati Copernicus pre-elaborati",
 } as const;
 
 type Catalog = Record<keyof typeof it, string>;
@@ -39,7 +39,7 @@ const en: Catalog = {
   "mission.metricsLabel": "Mission metrics",
   "sidebar.label": "Expedition console and files",
   "status.mode": "Mode",
-  "mission.title": "North Sea CTD Transect",
+  "mission.title": "North Sea CTD Station",
   "mission.level": "Bachelor · Introductory mission",
   "mission.kicker": "MISSION 01 · NORTH SEA",
   "metric.route": "ROUTE",
@@ -51,7 +51,7 @@ const en: Catalog = {
   "sidebar.terminal": "Terminal",
   "sidebar.yaml": "YAML",
   "sidebar.files": "Files",
-  "status.prototype": "UI prototype · scientific data not validated",
+  "status.prototype": "Vertical slice · preprocessed Copernicus data",
 };
 
 export const catalogs = { it, en } satisfies Record<Locale, Catalog>;

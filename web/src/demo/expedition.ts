@@ -22,20 +22,8 @@ export const DEMO_EXPEDITION: DemoExpedition = {
         sea_depth_meter: -32,
       },
       {
-        location: { latitude: 53.75, longitude: 4.02 },
-        time: "2024-06-01T15:30:00Z",
-        instrument: ["CTD"],
-        sea_depth_meter: -44,
-      },
-      {
-        location: { latitude: 54.18, longitude: 3.72 },
-        time: "2024-06-01T21:00:00Z",
-        instrument: ["CTD"],
-        sea_depth_meter: -58,
-      },
-      {
         location: { latitude: 52.98, longitude: 4.74 },
-        time: "2024-06-02T12:00:00Z",
+        time: "2024-06-01T16:00:00Z",
       },
     ],
   },

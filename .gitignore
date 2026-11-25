@@ -145,6 +145,9 @@ celerybeat.pid
 # Environments
 .env
 .venv
+
+# Local Copernicus credentials (never commit)
+/config/copernicus.env
 env/
 venv/
 ENV/

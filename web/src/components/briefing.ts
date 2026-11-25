@@ -3,8 +3,8 @@ import type { Locale } from "../i18n";
 const copy = {
   it: {
     kicker: "BRIEFING DIDATTICO · MISSIONE 01",
-    title: "Pianifica un transetto CTD nel Mare del Nord",
-    body: "Scegli le stazioni, controlla fondale e rotta, poi osserva come ogni decisione diventa una configurazione scientifica riproducibile.",
+    title: "Pianifica una stazione CTD nel Mare del Nord",
+    body: "Scegli la stazione, controlla fondale e rotta, poi osserva come ogni decisione diventa una configurazione scientifica riproducibile.",
     bridge: "GUI → YAML → CLI",
     bridgeBody: "Tre viste dello stesso progetto: l’interfaccia guida, lo YAML documenta, la console rende trasparente ciò che avviene.",
     action: "Entra nella sala operativa",
@@ -12,8 +12,8 @@ const copy = {
   },
   en: {
     kicker: "LEARNING BRIEF · MISSION 01",
-    title: "Plan a North Sea CTD transect",
-    body: "Choose stations, check bathymetry and route, then see every decision become a reproducible scientific configuration.",
+    title: "Plan a North Sea CTD station",
+    body: "Choose the station, check bathymetry and route, then see every decision become a reproducible scientific configuration.",
     bridge: "GUI → YAML → CLI",
     bridgeBody: "Three views of one project: the interface guides, YAML documents, and the console makes each action visible.",
     action: "Enter operations room",

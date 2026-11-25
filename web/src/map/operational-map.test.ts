@@ -1,12 +1,13 @@
 import { afterEach, expect, it } from "vitest";
 
 import { DEMO_EXPEDITION } from "../demo/expedition";
+import { MISSION_DATASET } from "../demo/mission-dataset";
 import { DemoWorkspace } from "../workspace/demo-workspace";
 import "./operational-map";
 
 afterEach(() => document.body.replaceChildren());
 
-it("updates the shared workspace when a suggested station is moved", () => {
+it("updates the shared workspace when the tutor suggests a safe station", () => {
   const workspace = new DemoWorkspace(DEMO_EXPEDITION);
   const map = document.createElement("vs-operational-map") as HTMLElement & {
     workspace: DemoWorkspace;
@@ -14,11 +15,11 @@ it("updates the shared workspace when a suggested station is moved", () => {
   map.workspace = workspace;
   document.body.append(map);
 
-  map.querySelector<HTMLButtonElement>("[data-move-station='1']")?.click();
+  map.querySelector<HTMLButtonElement>("[data-recommend-station]")?.click();
 
   expect(workspace.revisionId).toBe(2);
   expect(workspace.expedition.schedule.waypoints[1]?.location.longitude).toBe(
-    4.47,
+    Number(MISSION_DATASET.recommendedStation.longitude.toFixed(3)),
   );
 });
 
@@ -31,13 +32,13 @@ it("disables station edits while an invalid YAML draft is locked", () => {
   map.workspace = workspace;
   document.body.append(map);
 
-  const button = map.querySelector<HTMLButtonElement>("[data-move-station='1']");
+  const button = map.querySelector<HTMLButtonElement>("[data-recommend-station]");
   expect(button?.disabled).toBe(true);
   button?.click();
   expect(workspace.revisionId).toBe(1);
 });
 
-it("shows mission progress on the operational chart", () => {
+it("shows mission progress and Copernicus provenance on the chart", () => {
   const workspace = new DemoWorkspace(DEMO_EXPEDITION);
   const map = document.createElement("vs-operational-map") as HTMLElement & {
     workspace: DemoWorkspace;
@@ -48,5 +49,5 @@ it("shows mission progress on the operational chart", () => {
   map.phase = "sampling";
 
   expect(map.getAttribute("data-phase")).toBe("sampling");
-  expect(map.querySelector(".vessel-marker")).not.toBeNull();
+  expect(map.textContent).toContain("Copernicus Marine");
 });

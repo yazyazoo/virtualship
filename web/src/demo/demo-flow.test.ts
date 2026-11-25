@@ -1,10 +1,8 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 
 import "../app";
 
-beforeEach(() => vi.useFakeTimers());
 afterEach(() => {
-  vi.useRealTimers();
   document.body.replaceChildren();
 });
 
@@ -19,10 +17,17 @@ describe("Erik presentation flow", () => {
     app.querySelector<HTMLButtonElement>("[data-start-planning]")?.click();
     expect(app.getAttribute("data-stage")).toBe("planning");
 
+    app.querySelector<HTMLButtonElement>("[data-recommend-station]")?.click();
+    app.querySelector<HTMLButtonElement>("[data-ship-section='wetlab']")?.click();
+    app.querySelector<HTMLButtonElement>("[data-ship-section='winch']")?.click();
     app.querySelector("vs-developer-sidebar")?.dispatchEvent(
       new CustomEvent("run-mission", { bubbles: true }),
     );
-    vi.runAllTimers();
+    for (let step = 0; step < 5; step += 1) {
+      app.querySelector("vs-developer-sidebar")?.dispatchEvent(
+        new CustomEvent("mission-action", { bubbles: true, detail: { action: "operate" } }),
+      );
+    }
 
     expect(app.getAttribute("data-stage")).toBe("debrief");
     expect(app.textContent).toContain("Decisione · evidenza · conseguenza");
@@ -51,6 +56,27 @@ describe("Erik presentation flow", () => {
 
     action?.click();
     await Promise.resolve();
-    expect(document.activeElement?.getAttribute("data-move-station")).toBe("1");
+    expect(document.activeElement?.hasAttribute("data-recommend-station")).toBe(true);
+  });
+
+  it("revokes departure when YAML moves a safe station to shallow water", () => {
+    const app = document.createElement("virtualship-demo");
+    document.body.append(app);
+    app.querySelector<HTMLButtonElement>("[data-start-planning]")?.click();
+    app.querySelector<HTMLButtonElement>("[data-recommend-station]")?.click();
+    app.querySelector<HTMLButtonElement>("[data-ship-section='wetlab']")?.click();
+    app.querySelector<HTMLButtonElement>("[data-ship-section='winch']")?.click();
+    expect(app.querySelector<HTMLButtonElement>("[data-mission-action='depart']")?.disabled).toBe(false);
+
+    app.querySelector<HTMLButtonElement>("[data-sidebar-tab='yaml']")?.click();
+    const source = app.querySelector<HTMLTextAreaElement>(".yaml-source");
+    if (!source) throw new Error("YAML editor missing");
+    source.value = source.value
+      .replace("latitude: 53.667", "latitude: 53.32")
+      .replace("longitude: 4.333", "longitude: 4.35");
+    app.querySelector<HTMLButtonElement>("[data-yaml-apply]")?.click();
+
+    app.querySelector<HTMLButtonElement>("[data-sidebar-tab='tutor']")?.click();
+    expect(app.querySelector<HTMLButtonElement>("[data-mission-action='depart']")?.disabled).toBe(true);
   });
 });

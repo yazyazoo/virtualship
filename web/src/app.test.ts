@@ -38,7 +38,7 @@ describe("VirtualShip demo shell", () => {
     );
     englishButton?.click();
 
-    expect(app.textContent).toContain("North Sea CTD Transect");
+    expect(app.textContent).toContain("North Sea CTD Station");
     expect(app.querySelector("[data-screen='academy']")).not.toBeNull();
   });
 
@@ -53,5 +53,16 @@ describe("VirtualShip demo shell", () => {
 
     app.querySelector<HTMLButtonElement>("button[data-mode='lab']")?.click();
     expect(app.textContent).toContain("30 giorni");
+  });
+
+  it("lets the student hide and restore the tutor", () => {
+    const app = document.createElement("virtualship-demo");
+    document.body.append(app);
+
+    app.querySelector<HTMLButtonElement>("[data-mission-action='toggle-tutor']")?.click();
+    expect(app.textContent).toContain("Esplora in autonomia");
+
+    app.querySelector<HTMLButtonElement>("[data-mission-action='toggle-tutor']")?.click();
+    expect(app.textContent).toContain("Prepara la spedizione");
   });
 });

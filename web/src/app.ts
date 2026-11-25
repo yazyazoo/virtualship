@@ -4,15 +4,18 @@ import type { MissionBriefing } from "./components/briefing";
 import "./components/debrief";
 import type { MissionDebrief } from "./components/debrief";
 import { DEMO_EXPEDITION } from "./demo/expedition";
+import { MISSION_DATASET } from "./demo/mission-dataset";
 import "./lab/lab-preview";
 import type { LabPreview } from "./lab/lab-preview";
 import "./map/operational-map";
 import type { OperationalMap } from "./map/operational-map";
+import { initialInteractiveMission, transitionMission, type InteractiveMissionState, type MissionAction, type ShipSection } from "./mission/mission-machine";
+import { missionMetrics } from "./mission/route-metrics";
+import { evaluateStation } from "./mission/rules";
 import "./sidebar/developer-sidebar";
 import type { DeveloperSidebar } from "./sidebar/developer-sidebar";
 import "./ship/ship-cutaway";
 import type { ShipCutaway } from "./ship/ship-cutaway";
-import { advanceMission, initialMissionState, type MissionState } from "./ship/mission-timeline";
 import { DemoWorkspace } from "./workspace/demo-workspace";
 
 type AppMode = "academy" | "lab";
@@ -23,8 +26,7 @@ class VirtualShipDemo extends HTMLElement {
   private mode: AppMode = "academy";
   private stage: DemoStage = "briefing";
   private readonly workspace = new DemoWorkspace(DEMO_EXPEDITION);
-  private missionState: MissionState = initialMissionState();
-  private missionTimer?: number;
+  private missionState: InteractiveMissionState = initialInteractiveMission();
 
   connectedCallback(): void {
     this.render();
@@ -72,11 +74,11 @@ class VirtualShipDemo extends HTMLElement {
       </div>
     `;
     const sidebar = this.querySelector<DeveloperSidebar>("vs-developer-sidebar");
-    if (sidebar) { sidebar.locale = this.locale; sidebar.workspace = this.workspace; }
+    if (sidebar) { sidebar.locale = this.locale; sidebar.mission = this.missionState; sidebar.workspace = this.workspace; }
     const map = this.querySelector<OperationalMap>("vs-operational-map");
     if (map) { map.locale = this.locale; map.phase = this.missionState.phase; map.workspace = this.workspace; }
     const ship = this.querySelector<ShipCutaway>("vs-ship-cutaway");
-    if (ship) { ship.locale = this.locale; ship.phase = this.missionState.phase; }
+    if (ship) { ship.locale = this.locale; ship.phase = this.missionState.phase; ship.selectedSections = this.missionState.inspectedSections; }
     const lab = this.querySelector<LabPreview>("vs-lab-preview");
     if (lab) lab.locale = this.locale;
     const briefing = this.querySelector<MissionBriefing>("vs-mission-briefing");
@@ -109,7 +111,23 @@ class VirtualShipDemo extends HTMLElement {
         this.render();
       });
     });
-    this.querySelector("vs-developer-sidebar")?.addEventListener("run-mission", () => this.startMission());
+    this.querySelector("vs-developer-sidebar")?.addEventListener("run-mission", () => this.applyMissionAction({ type: "depart" }));
+    this.querySelector("vs-developer-sidebar")?.addEventListener("mission-action", (event) => {
+      const action = (event as CustomEvent<{ action: "depart" | "operate" | "undo" | "reset" | "toggle-tutor" }>).detail.action;
+      this.applyMissionAction({ type: action });
+    });
+    this.querySelector("vs-developer-sidebar")?.addEventListener("workspace-updated", () => {
+      this.syncStationSafety();
+      this.render();
+    });
+    this.querySelector("vs-operational-map")?.addEventListener("station-evaluated", () => {
+      this.syncStationSafety();
+      this.render();
+    });
+    this.querySelector("vs-ship-cutaway")?.addEventListener("ship-section-selected", (event) => {
+      const section = (event as CustomEvent<{ section: ShipSection }>).detail.section;
+      this.applyMissionAction({ type: "inspect", section });
+    });
     this.querySelector("vs-mission-briefing")?.addEventListener("start-planning", () => {
       this.stage = "planning";
       this.render();
@@ -117,36 +135,47 @@ class VirtualShipDemo extends HTMLElement {
     });
     this.querySelector("vs-mission-debrief")?.addEventListener("replay-mission", () => {
       this.stage = "planning";
-      this.missionState = initialMissionState();
+      this.missionState = initialInteractiveMission();
+      this.workspace.reset(DEMO_EXPEDITION);
       this.render();
       this.focusPlanningControl();
     });
   }
 
   private focusPlanningControl(): void {
-    queueMicrotask(() => this.querySelector<HTMLButtonElement>("[data-move-station]")?.focus());
+    queueMicrotask(() => this.querySelector<HTMLButtonElement>("[data-recommend-station]")?.focus());
   }
 
-  private startMission(): void {
-    if (this.missionTimer) window.clearTimeout(this.missionTimer);
-    this.missionState = initialMissionState();
-    const tick = (): void => {
-      this.missionState = advanceMission(this.missionState);
-      const ship = this.querySelector<ShipCutaway>("vs-ship-cutaway");
-      if (ship) ship.phase = this.missionState.phase;
-      const map = this.querySelector<OperationalMap>("vs-operational-map");
-      if (map) map.phase = this.missionState.phase;
-      if (this.missionState.phase !== "completed") {
-        this.missionTimer = window.setTimeout(tick, 850);
-      } else {
-        this.stage = "debrief";
-        this.render();
-      }
-    };
-    tick();
+  private applyMissionAction(action: MissionAction): void {
+    if (action.type === "depart") this.syncStationSafety();
+    this.missionState = transitionMission(this.missionState, action);
+    if (this.missionState.phase === "completed") this.stage = "debrief";
+    if (action.type === "reset") {
+      this.stage = "planning";
+      this.workspace.reset(DEMO_EXPEDITION);
+    }
+    this.render();
+  }
+
+  private syncStationSafety(): void {
+    const station = this.workspace.expedition.schedule.waypoints[1]?.location;
+    const evaluation = station
+      ? evaluateStation(
+          station.longitude,
+          station.latitude,
+          MISSION_DATASET.bathymetry,
+          MISSION_DATASET.targetDepthM,
+          MISSION_DATASET.safetyClearanceM,
+        )
+      : null;
+    this.missionState = transitionMission(this.missionState, {
+      type: "set-station-safety",
+      safe: !this.workspace.guiLocked && Boolean(evaluation?.safe),
+    });
   }
 
   private academyView(): string {
+    const metrics = missionMetrics(this.workspace.expedition);
     return `
       <section class="mission-ribbon" aria-label="${t(this.locale, "mission.statusLabel")}">
         <div>
@@ -155,9 +184,9 @@ class VirtualShipDemo extends HTMLElement {
         </div>
         <div class="mission-meta"><span>${t(this.locale, "mission.level")}</span><strong>CTD · T/S</strong></div>
         <div class="mission-metrics" aria-label="${t(this.locale, "mission.metricsLabel")}">
-          <span><small>${t(this.locale, "metric.route")}</small><strong>184 nm</strong></span>
-          <span><small>${t(this.locale, "metric.eta")}</small><strong>18 h 42</strong></span>
-          <span><small>${t(this.locale, "metric.stations")}</small><strong>03 / 05</strong></span>
+          <span><small>${t(this.locale, "metric.route")}</small><strong>${metrics.distanceNm} nm</strong></span>
+          <span><small>${t(this.locale, "metric.eta")}</small><strong>${metrics.durationLabel}</strong></span>
+          <span><small>${t(this.locale, "metric.stations")}</small><strong>01 / 01</strong></span>
           <span><small>${t(this.locale, "metric.sea")}</small><strong>${t(this.locale, "metric.calm")}</strong></span>
         </div>
       </section>

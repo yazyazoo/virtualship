@@ -12,7 +12,7 @@ it("shows CTD cable depth during lowering", () => {
   ship.phase = "lowering";
 
   expect(ship.getAttribute("data-phase")).toBe("lowering");
-  expect(ship.textContent).toContain("42 m");
+  expect(ship.textContent).toContain("30 m");
 });
 
 it("reveals the CTD profile progressively instead of during planning", () => {

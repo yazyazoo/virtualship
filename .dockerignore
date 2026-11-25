@@ -2,6 +2,7 @@
 .github/
 .superpowers/
 ZZZ/
+config/copernicus.env
 web/node_modules/
 web/dist/
 deploy/vps/secrets/

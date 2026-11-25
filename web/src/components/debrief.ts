@@ -4,16 +4,16 @@ const copy = {
   it: {
     kicker: "MISSIONE COMPLETATA · DEBRIEF",
     title: "Decisione · evidenza · conseguenza",
-    body: "La stazione spostata ha aggiornato rotta e YAML; la CTD si è fermata sopra il fondale e ha prodotto un profilo dimostrativo.",
+    body: "La stazione scelta ha aggiornato rotta e YAML; la CTD si è fermata a 30 m con margine dal fondale e ha prodotto un profilo Copernicus.",
     action: "Ripeti la missione",
-    decision: "DECISIONE", evidence: "EVIDENZA", consequence: "CONSEGUENZA", moved: "NS-02 spostata a est", revision: "Revisione YAML +1", safe: "Calata CTD sicura · 42 m",
+    decision: "DECISIONE", evidence: "EVIDENZA", consequence: "CONSEGUENZA", moved: "NS-01 su fondale idoneo", revision: "Rotta e YAML aggiornati", safe: "Calata CTD sicura · 30 m",
   },
   en: {
     kicker: "MISSION COMPLETE · DEBRIEF",
     title: "Decision · evidence · consequence",
-    body: "The moved station updated route and YAML; the CTD stopped above the seafloor and produced a demonstration profile.",
+    body: "The selected station updated route and YAML; the CTD stopped at 30 m with seafloor clearance and produced a Copernicus profile.",
     action: "Replay mission",
-    decision: "DECISION", evidence: "EVIDENCE", consequence: "CONSEQUENCE", moved: "NS-02 moved east", revision: "YAML revision +1", safe: "Safe CTD cast · 42 m",
+    decision: "DECISION", evidence: "EVIDENCE", consequence: "CONSEQUENCE", moved: "NS-01 over suitable depth", revision: "Route and YAML updated", safe: "Safe CTD cast · 30 m",
   },
 } as const;
 

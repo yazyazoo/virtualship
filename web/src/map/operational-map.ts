@@ -1,20 +1,21 @@
-import type { DemoWorkspace } from "../workspace/demo-workspace";
-import type { Locale } from "../i18n";
-import type { MissionPhase } from "../ship/mission-timeline";
+import * as maplibregl from "maplibre-gl";
+import type { Map as MapLibreMap } from "maplibre-gl";
 
-function project(longitude: number, latitude: number): [number, number] {
-  return [((longitude - 3) / 4) * 900, 420 - ((latitude - 51) / 4.5) * 420];
-}
+import { MISSION_DATASET } from "../demo/mission-dataset";
+import type { Locale } from "../i18n";
+import { evaluateStation } from "../mission/rules";
+import type { MissionPhase } from "../ship/mission-timeline";
+import type { DemoWorkspace } from "../workspace/demo-workspace";
 
 export class OperationalMap extends HTMLElement {
   private workspaceValue: DemoWorkspace | null = null;
   private localeValue: Locale = "it";
   private phaseValue: MissionPhase = "planning";
   private unsubscribe?: () => void;
+  private map?: MapLibreMap;
 
   set locale(value: Locale) { this.localeValue = value; this.render(); }
   set phase(value: MissionPhase) { this.phaseValue = value; this.setAttribute("data-phase", value); this.render(); }
-
   set workspace(value: DemoWorkspace) {
     this.unsubscribe?.();
     this.workspaceValue = value;
@@ -22,55 +23,148 @@ export class OperationalMap extends HTMLElement {
     this.render();
   }
 
-  connectedCallback(): void {
-    this.render();
+  connectedCallback(): void { this.render(); }
+  disconnectedCallback(): void { this.unsubscribe?.(); this.map?.remove(); }
+
+  private copy() {
+    return this.localeValue === "it"
+      ? { chart: "CARTA OPERATIVA REALE", area: "Mare del Nord meridionale · Den Helder", hint: "Trascina NS-01 in acque abbastanza profonde", safe: "Stazione idonea", unsafe: "Fondale troppo vicino", outside: "Fuori dalla copertura Copernicus", target: "Obiettivo CTD", floor: "Fondale", clearance: "Margine", recommend: "Mostrami una stazione idonea", offline: "Carta scientifica locale (sfondo online non disponibile)" }
+      : { chart: "REAL OPERATIONAL CHART", area: "Southern North Sea · Den Helder", hint: "Drag NS-01 into sufficiently deep water", safe: "Suitable station", unsafe: "Seafloor too close", outside: "Outside Copernicus coverage", target: "CTD target", floor: "Seafloor", clearance: "Clearance", recommend: "Show me a suitable station", offline: "Local scientific chart (online basemap unavailable)" };
   }
 
-  disconnectedCallback(): void {
-    this.unsubscribe?.();
+  private station() {
+    const waypoint = this.workspaceValue?.expedition.schedule.waypoints[1];
+    return waypoint?.location ?? MISSION_DATASET.initialStation;
   }
 
   private render(): void {
     if (!this.workspaceValue) return;
-    const waypoints = this.workspaceValue.expedition.schedule.waypoints;
-    const points = waypoints
-      .map(({ location }) => project(location.longitude, location.latitude).join(","))
-      .join(" ");
-    const copy = this.localeValue === "it"
-      ? { chart: "CARTA OPERATIVA", area: "Mare del Nord meridionale", edit: "Stazioni suggerite · liberamente regolabili", locked: "Risolvi la bozza YAML per modificare le stazioni", move: "Sposta a est", depth: "Batimetria demo", route: "Rotta pianificata", port: "PORTO", return: "RIENTRO", aria: "Carta operativa batimetrica", routeAria: "Rotta dimostrativa nel Mare del Nord" }
-      : { chart: "OPERATIONAL CHART", area: "Southern North Sea", edit: "Suggested stations · freely adjustable", locked: "Resolve the YAML draft to edit stations", move: "Move east", depth: "Demo bathymetry", route: "Planned route", port: "PORT", return: "RETURN", aria: "Bathymetric operational chart", routeAria: "Demo North Sea route" };
-    const phaseIndex: Record<MissionPhase, number> = { planning: 0, underway: 1, stationkeeping: 2, lowering: 2, sampling: 2, recovering: 3, completed: waypoints.length - 1 };
-    const vesselWaypoint = waypoints[Math.min(phaseIndex[this.phaseValue], waypoints.length - 1)] ?? waypoints[0];
-    if (!vesselWaypoint) return;
-    const [vesselX, vesselY] = project(vesselWaypoint.location.longitude, vesselWaypoint.location.latitude);
+    this.map?.remove();
+    this.map = undefined;
+    const copy = this.copy();
+    const station = this.station();
+    const evaluation = evaluateStation(station.longitude, station.latitude, MISSION_DATASET.bathymetry, MISSION_DATASET.targetDepthM, MISSION_DATASET.safetyClearanceM);
+    const floorLabel = evaluation ? evaluation.seafloorDepthM.toFixed(1) : "–";
+    const clearanceLabel = evaluation ? evaluation.clearanceM.toFixed(1) : "–";
+    this.setAttribute("data-station-safe", String(evaluation?.safe ?? false));
     this.innerHTML = `
-      <article class="instrument-panel map-placeholder" aria-label="${copy.aria}">
-        <div class="panel-heading"><div><p class="panel-kicker">${copy.chart}</p><h3>${copy.area}</h3></div><div class="map-controls"><span>3°E–7°E · 51°N–55.5°N</span></div></div>
-        <div class="demo-chart">
-          <svg viewBox="0 0 900 420" preserveAspectRatio="none" aria-label="${copy.routeAria}">
-            <defs><linearGradient id="sea-map" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#082e46"/><stop offset=".55" stop-color="#0d5269"/><stop offset="1" stop-color="#0b7680"/></linearGradient></defs>
-            <rect width="900" height="420" fill="url(#sea-map)"/>
-            <path d="M610 0 C650 62 630 104 690 148 C748 190 720 258 810 304 L900 342 V420 H790 C740 384 692 376 634 330 C578 286 610 226 560 188 C520 158 534 92 492 44 L470 0Z" fill="#c8c3a8"/>
-            <path d="M0 336 C120 310 190 350 284 328 C376 305 430 326 520 294M0 268 C116 244 208 270 324 244 C430 220 502 244 594 214M42 192 C188 170 288 188 420 150 C500 126 560 140 642 112" fill="none" stroke="#5db1b4" stroke-width="1.5" opacity=".62"/>
-            <polyline points="${points}" fill="none" stroke="#ffb66e" stroke-width="4" stroke-dasharray="10 6"/>
-            ${waypoints.map(({ location }, index) => { const [x,y] = project(location.longitude, location.latitude); return `<circle cx="${x}" cy="${y}" r="${index === 0 || index === waypoints.length - 1 ? 8 : 10}" fill="#f6f2de" stroke="#ffb66e" stroke-width="4"/><text x="${x + 13}" y="${y - 10}" fill="#f6f2de" font-size="12">${index === 0 ? copy.port : index === waypoints.length - 1 ? copy.return : `NS-0${index}`}</text>`; }).join("")}
-            <g class="vessel-marker" transform="translate(${vesselX} ${vesselY})"><path d="M-12 -5 L10 -5 L15 0 L9 6 L-9 6 Z" fill="#93e1d5" stroke="#082e46" stroke-width="2"/><circle r="18" fill="none" stroke="#93e1d5" opacity=".45"/></g>
-          </svg>
-          <div class="station-controls"><span>${this.workspaceValue.guiLocked ? copy.locked : copy.edit}</span>${waypoints.slice(1,-1).map((_,index) => `<button data-move-station="${index+1}" ${this.workspaceValue?.guiLocked ? "disabled" : ""}>${copy.move} NS-0${index+1}</button>`).join("")}</div>
-          <div class="map-legend"><span><i class="legend-depth"></i>${copy.depth}</span><span><i class="legend-route"></i>${copy.route}</span></div>
+      <article class="instrument-panel map-panel" aria-label="${copy.chart}">
+        <div class="panel-heading"><div><p class="panel-kicker">${copy.chart}</p><h3>${copy.area}</h3></div><span class="map-source">Copernicus Marine · 2024-06-01</span></div>
+        <div class="map-shell">
+          <div class="maplibre-surface" aria-label="${copy.area}"></div>
+          <div class="map-fallback" hidden><span>${copy.offline}</span></div>
+          <section class="station-card ${evaluation?.safe ? "station-safe" : "station-unsafe"}">
+            <strong>${evaluation?.safe ? copy.safe : evaluation ? copy.unsafe : copy.outside}</strong>
+            <span>${copy.target}: ${MISSION_DATASET.targetDepthM} m</span>
+            <span>${copy.floor}: ${floorLabel} m</span>
+            <span>${copy.clearance}: ${clearanceLabel} m</span>
+            <small>${copy.hint}</small>
+            <button data-recommend-station ${this.workspaceValue.guiLocked || this.phaseValue !== "planning" ? "disabled" : ""}>${copy.recommend}</button>
+          </section>
         </div>
       </article>`;
-    this.querySelectorAll<HTMLButtonElement>("[data-move-station]").forEach((button) =>
-      button.addEventListener("click", () => {
-        if (this.workspaceValue?.guiLocked) return;
-        const index = Number(button.dataset.moveStation);
-        this.workspaceValue?.applyGuiPatch((expedition) => {
-          const waypoint = expedition.schedule.waypoints[index];
-          if (waypoint) waypoint.location.longitude = Number((waypoint.location.longitude + 0.12).toFixed(2));
-        });
-      }),
-    );
+    this.querySelector<HTMLButtonElement>("[data-recommend-station]")?.addEventListener("click", () => {
+      const { longitude, latitude } = MISSION_DATASET.recommendedStation;
+      this.updateStation(longitude, latitude);
+    });
+    if (navigator.userAgent.toLowerCase().includes("jsdom")) return;
+    queueMicrotask(() => this.initialiseMap());
   }
+
+  private initialiseMap(): void {
+    const container = this.querySelector<HTMLElement>(".maplibre-surface");
+    if (!container || !this.isConnected) return;
+    try {
+      const map = new maplibregl.Map({
+        container,
+        style: {
+          version: 8,
+          sources: {
+            osm: {
+              type: "raster",
+              tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
+              tileSize: 256,
+              attribution: "© OpenStreetMap contributors",
+            },
+          },
+          layers: [{ id: "osm", type: "raster", source: "osm" }],
+        },
+        center: [4.48, 53.42],
+        zoom: 7.9,
+        attributionControl: false,
+        maxBounds: [[2.5, 51.8], [6.2, 55.0]],
+      });
+      this.map = map;
+      map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "bottom-left");
+      map.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-right");
+      map.on("load", () => this.addScientificLayers());
+      map.on("error", () => this.showFallback());
+    } catch { this.showFallback(); }
+  }
+
+  private addScientificLayers(): void {
+    const map = this.map;
+    if (!map || !this.workspaceValue) return;
+    const station = this.station();
+    const port = MISSION_DATASET.port;
+    const cellSize = 0.0415;
+    map.addSource("bathymetry", { type: "geojson", data: {
+      type: "FeatureCollection",
+      features: MISSION_DATASET.bathymetry.map((cell) => ({ type: "Feature", properties: { depthM: cell.depthM }, geometry: { type: "Polygon", coordinates: [[
+        [cell.longitude - cellSize, cell.latitude - cellSize], [cell.longitude + cellSize, cell.latitude - cellSize], [cell.longitude + cellSize, cell.latitude + cellSize], [cell.longitude - cellSize, cell.latitude + cellSize], [cell.longitude - cellSize, cell.latitude - cellSize],
+      ]] } })),
+    } });
+    map.addLayer({ id: "bathymetry-fill", type: "fill", source: "bathymetry", paint: {
+      "fill-color": ["interpolate", ["linear"], ["get", "depthM"], 7, "#69d5cc", 24, "#238ca0", 38, "#073c68"], "fill-opacity": 0.48, "fill-outline-color": "rgba(214,246,242,.34)",
+    } });
+    map.addSource("route", { type: "geojson", data: { type: "FeatureCollection", features: [{ type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: [[port.longitude, port.latitude], [station.longitude, station.latitude], [port.longitude, port.latitude]] } }] } });
+    map.addLayer({ id: "route-line", type: "line", source: "route", paint: { "line-color": "#ffb66e", "line-width": 5, "line-opacity": 1, "line-dasharray": [2, 1.4] } });
+    for (let step = 1; step < 12; step += 1) {
+      const fraction = step / 12;
+      const routeDot = document.createElement("i");
+      routeDot.className = "route-dot";
+      new maplibregl.Marker({ element: routeDot })
+        .setLngLat([
+          port.longitude + (station.longitude - port.longitude) * fraction,
+          port.latitude + (station.latitude - port.latitude) * fraction,
+        ])
+        .addTo(map);
+    }
+    const stationElement = document.createElement("button");
+    stationElement.className = "station-marker";
+    stationElement.textContent = "NS-01";
+    stationElement.setAttribute("aria-label", "NS-01 · draggable waypoint");
+    stationElement.addEventListener("keydown", (event) => {
+      const offsets: Record<string, [number, number]> = {
+        ArrowLeft: [-0.04, 0], ArrowRight: [0.04, 0], ArrowUp: [0, 0.04], ArrowDown: [0, -0.04],
+      };
+      const offset = offsets[event.key];
+      if (!offset) return;
+      event.preventDefault();
+      this.updateStation(station.longitude + offset[0], station.latitude + offset[1]);
+    });
+    const stationMarker = new maplibregl.Marker({ element: stationElement, draggable: this.phaseValue === "planning", anchor: "bottom" }).setLngLat([station.longitude, station.latitude]).addTo(map);
+    stationMarker.on("dragend", () => { const point = stationMarker.getLngLat(); this.updateStation(point.lng, point.lat); });
+    const portElement = document.createElement("div");
+    portElement.className = "port-marker";
+    portElement.textContent = "DEN HELDER";
+    new maplibregl.Marker({ element: portElement, anchor: "bottom" }).setLngLat([port.longitude, port.latitude]).addTo(map);
+  }
+
+  private updateStation(longitude: number, latitude: number): void {
+    if (!this.workspaceValue || this.workspaceValue.guiLocked || this.phaseValue !== "planning") return;
+    const evaluation = evaluateStation(longitude, latitude, MISSION_DATASET.bathymetry, MISSION_DATASET.targetDepthM, MISSION_DATASET.safetyClearanceM);
+    this.workspaceValue.applyGuiPatch((expedition) => {
+      const waypoint = expedition.schedule.waypoints[1];
+      if (!waypoint) return;
+      waypoint.location.longitude = Number(longitude.toFixed(3));
+      waypoint.location.latitude = Number(latitude.toFixed(3));
+      waypoint.sea_depth_meter = evaluation ? -evaluation.seafloorDepthM : null;
+    });
+    this.dispatchEvent(new CustomEvent("station-evaluated", { bubbles: true, detail: evaluation }));
+  }
+
+  private showFallback(): void { const fallback = this.querySelector<HTMLElement>(".map-fallback"); if (fallback) fallback.hidden = false; }
 }
 
 if (!customElements.get("vs-operational-map")) customElements.define("vs-operational-map", OperationalMap);

@@ -1,0 +1,913 @@
+{
+  "id": "north-sea-mission-01",
+  "title": "Southern North Sea CTD",
+  "observationDate": "2024-06-01",
+  "targetDepthM": 30,
+  "safetyClearanceM": 5,
+  "bounds": {
+    "west": 3.9,
+    "south": 52.9,
+    "east": 4.9,
+    "north": 53.7
+  },
+  "source": {
+    "provider": "Copernicus Marine Service",
+    "bathymetryDataset": "cmems_mod_glo_phy_my_0.083deg_static",
+    "waterDataset": "cmems_mod_glo_phy_my_0.083deg_P1D-m",
+    "variables": [
+      "deptho",
+      "thetao",
+      "so"
+    ],
+    "processing": "Authenticated geographic and temporal subset; browser performs no ocean-model computation.",
+    "status": "verified-copernicus-subset",
+    "retrievedAt": "2026-11-25T14:51:51.053587+00:00",
+    "toolboxVersion": "2.5.2",
+    "rawChecksumsSha256": {
+      "north-sea-bathymetry.nc": "efe59db6165aad273a0e0c8a4b133ad8232ab744d779d8498c97efb191c8aed8",
+      "north-sea-water-column.nc": "d6f7df66e5518d4f5a9c5c0cb0f07627c91d0f5976c33d984a3011a6bd2c3123"
+    }
+  },
+  "port": {
+    "longitude": 4.74,
+    "latitude": 52.98,
+    "name": "Den Helder"
+  },
+  "initialStation": {
+    "longitude": 4.3333,
+    "latitude": 53.3333
+  },
+  "recommendedStation": {
+    "longitude": 4.3333,
+    "latitude": 53.6667
+  },
+  "bathymetry": [
+    {
+      "longitude": 3.8333,
+      "latitude": 52.8333,
+      "depthM": 24.8
+    },
+    {
+      "longitude": 3.9167,
+      "latitude": 52.8333,
+      "depthM": 25.5
+    },
+    {
+      "longitude": 4.0,
+      "latitude": 52.8333,
+      "depthM": 25.5
+    },
+    {
+      "longitude": 4.0833,
+      "latitude": 52.8333,
+      "depthM": 24.6
+    },
+    {
+      "longitude": 4.1667,
+      "latitude": 52.8333,
+      "depthM": 25.1
+    },
+    {
+      "longitude": 4.25,
+      "latitude": 52.8333,
+      "depthM": 24.0
+    },
+    {
+      "longitude": 4.3333,
+      "latitude": 52.8333,
+      "depthM": 21.3
+    },
+    {
+      "longitude": 4.4167,
+      "latitude": 52.8333,
+      "depthM": 20.5
+    },
+    {
+      "longitude": 4.5,
+      "latitude": 52.8333,
+      "depthM": 20.1
+    },
+    {
+      "longitude": 4.5833,
+      "latitude": 52.8333,
+      "depthM": 14.8
+    },
+    {
+      "longitude": 4.6667,
+      "latitude": 52.8333,
+      "depthM": 8.0
+    },
+    {
+      "longitude": 3.8333,
+      "latitude": 52.9167,
+      "depthM": 24.6
+    },
+    {
+      "longitude": 3.9167,
+      "latitude": 52.9167,
+      "depthM": 24.7
+    },
+    {
+      "longitude": 4.0,
+      "latitude": 52.9167,
+      "depthM": 24.1
+    },
+    {
+      "longitude": 4.0833,
+      "latitude": 52.9167,
+      "depthM": 23.1
+    },
+    {
+      "longitude": 4.1667,
+      "latitude": 52.9167,
+      "depthM": 24.8
+    },
+    {
+      "longitude": 4.25,
+      "latitude": 52.9167,
+      "depthM": 26.2
+    },
+    {
+      "longitude": 4.3333,
+      "latitude": 52.9167,
+      "depthM": 23.7
+    },
+    {
+      "longitude": 4.4167,
+      "latitude": 52.9167,
+      "depthM": 22.1
+    },
+    {
+      "longitude": 4.5,
+      "latitude": 52.9167,
+      "depthM": 21.8
+    },
+    {
+      "longitude": 4.5833,
+      "latitude": 52.9167,
+      "depthM": 16.4
+    },
+    {
+      "longitude": 4.6667,
+      "latitude": 52.9167,
+      "depthM": 9.0
+    },
+    {
+      "longitude": 4.9167,
+      "latitude": 52.9167,
+      "depthM": 8.0
+    },
+    {
+      "longitude": 3.8333,
+      "latitude": 53.0,
+      "depthM": 26.6
+    },
+    {
+      "longitude": 3.9167,
+      "latitude": 53.0,
+      "depthM": 25.3
+    },
+    {
+      "longitude": 4.0,
+      "latitude": 53.0,
+      "depthM": 25.8
+    },
+    {
+      "longitude": 4.0833,
+      "latitude": 53.0,
+      "depthM": 24.7
+    },
+    {
+      "longitude": 4.1667,
+      "latitude": 53.0,
+      "depthM": 26.4
+    },
+    {
+      "longitude": 4.25,
+      "latitude": 53.0,
+      "depthM": 30.5
+    },
+    {
+      "longitude": 4.3333,
+      "latitude": 53.0,
+      "depthM": 27.8
+    },
+    {
+      "longitude": 4.4167,
+      "latitude": 53.0,
+      "depthM": 24.1
+    },
+    {
+      "longitude": 4.5,
+      "latitude": 53.0,
+      "depthM": 23.1
+    },
+    {
+      "longitude": 4.5833,
+      "latitude": 53.0,
+      "depthM": 14.9
+    },
+    {
+      "longitude": 4.6667,
+      "latitude": 53.0,
+      "depthM": 8.8
+    },
+    {
+      "longitude": 4.75,
+      "latitude": 53.0,
+      "depthM": 13.0
+    },
+    {
+      "longitude": 4.8333,
+      "latitude": 53.0,
+      "depthM": 9.0
+    },
+    {
+      "longitude": 4.9167,
+      "latitude": 53.0,
+      "depthM": 7.1
+    },
+    {
+      "longitude": 3.8333,
+      "latitude": 53.0833,
+      "depthM": 24.9
+    },
+    {
+      "longitude": 3.9167,
+      "latitude": 53.0833,
+      "depthM": 23.4
+    },
+    {
+      "longitude": 4.0,
+      "latitude": 53.0833,
+      "depthM": 25.9
+    },
+    {
+      "longitude": 4.0833,
+      "latitude": 53.0833,
+      "depthM": 24.4
+    },
+    {
+      "longitude": 4.1667,
+      "latitude": 53.0833,
+      "depthM": 26.3
+    },
+    {
+      "longitude": 4.25,
+      "latitude": 53.0833,
+      "depthM": 29.0
+    },
+    {
+      "longitude": 4.3333,
+      "latitude": 53.0833,
+      "depthM": 27.6
+    },
+    {
+      "longitude": 4.4167,
+      "latitude": 53.0833,
+      "depthM": 25.4
+    },
+    {
+      "longitude": 4.5,
+      "latitude": 53.0833,
+      "depthM": 22.3
+    },
+    {
+      "longitude": 4.5833,
+      "latitude": 53.0833,
+      "depthM": 19.2
+    },
+    {
+      "longitude": 4.6667,
+      "latitude": 53.0833,
+      "depthM": 12.7
+    },
+    {
+      "longitude": 4.75,
+      "latitude": 53.0833,
+      "depthM": 8.0
+    },
+    {
+      "longitude": 3.8333,
+      "latitude": 53.1667,
+      "depthM": 24.9
+    },
+    {
+      "longitude": 3.9167,
+      "latitude": 53.1667,
+      "depthM": 24.6
+    },
+    {
+      "longitude": 4.0,
+      "latitude": 53.1667,
+      "depthM": 26.3
+    },
+    {
+      "longitude": 4.0833,
+      "latitude": 53.1667,
+      "depthM": 26.8
+    },
+    {
+      "longitude": 4.1667,
+      "latitude": 53.1667,
+      "depthM": 26.3
+    },
+    {
+      "longitude": 4.25,
+      "latitude": 53.1667,
+      "depthM": 28.2
+    },
+    {
+      "longitude": 4.3333,
+      "latitude": 53.1667,
+      "depthM": 29.0
+    },
+    {
+      "longitude": 4.4167,
+      "latitude": 53.1667,
+      "depthM": 27.1
+    },
+    {
+      "longitude": 4.5,
+      "latitude": 53.1667,
+      "depthM": 24.8
+    },
+    {
+      "longitude": 4.5833,
+      "latitude": 53.1667,
+      "depthM": 22.4
+    },
+    {
+      "longitude": 4.6667,
+      "latitude": 53.1667,
+      "depthM": 17.1
+    },
+    {
+      "longitude": 4.75,
+      "latitude": 53.1667,
+      "depthM": 12.0
+    },
+    {
+      "longitude": 3.8333,
+      "latitude": 53.25,
+      "depthM": 23.4
+    },
+    {
+      "longitude": 3.9167,
+      "latitude": 53.25,
+      "depthM": 24.4
+    },
+    {
+      "longitude": 4.0,
+      "latitude": 53.25,
+      "depthM": 25.0
+    },
+    {
+      "longitude": 4.0833,
+      "latitude": 53.25,
+      "depthM": 25.2
+    },
+    {
+      "longitude": 4.1667,
+      "latitude": 53.25,
+      "depthM": 26.0
+    },
+    {
+      "longitude": 4.25,
+      "latitude": 53.25,
+      "depthM": 27.1
+    },
+    {
+      "longitude": 4.3333,
+      "latitude": 53.25,
+      "depthM": 26.8
+    },
+    {
+      "longitude": 4.4167,
+      "latitude": 53.25,
+      "depthM": 25.7
+    },
+    {
+      "longitude": 4.5,
+      "latitude": 53.25,
+      "depthM": 25.0
+    },
+    {
+      "longitude": 4.5833,
+      "latitude": 53.25,
+      "depthM": 25.0
+    },
+    {
+      "longitude": 4.6667,
+      "latitude": 53.25,
+      "depthM": 22.2
+    },
+    {
+      "longitude": 4.75,
+      "latitude": 53.25,
+      "depthM": 18.9
+    },
+    {
+      "longitude": 4.8333,
+      "latitude": 53.25,
+      "depthM": 7.5
+    },
+    {
+      "longitude": 3.8333,
+      "latitude": 53.3333,
+      "depthM": 24.4
+    },
+    {
+      "longitude": 3.9167,
+      "latitude": 53.3333,
+      "depthM": 25.2
+    },
+    {
+      "longitude": 4.0,
+      "latitude": 53.3333,
+      "depthM": 25.9
+    },
+    {
+      "longitude": 4.0833,
+      "latitude": 53.3333,
+      "depthM": 25.7
+    },
+    {
+      "longitude": 4.1667,
+      "latitude": 53.3333,
+      "depthM": 25.0
+    },
+    {
+      "longitude": 4.25,
+      "latitude": 53.3333,
+      "depthM": 26.3
+    },
+    {
+      "longitude": 4.3333,
+      "latitude": 53.3333,
+      "depthM": 27.5
+    },
+    {
+      "longitude": 4.4167,
+      "latitude": 53.3333,
+      "depthM": 26.8
+    },
+    {
+      "longitude": 4.5,
+      "latitude": 53.3333,
+      "depthM": 25.0
+    },
+    {
+      "longitude": 4.5833,
+      "latitude": 53.3333,
+      "depthM": 24.8
+    },
+    {
+      "longitude": 4.6667,
+      "latitude": 53.3333,
+      "depthM": 25.4
+    },
+    {
+      "longitude": 4.75,
+      "latitude": 53.3333,
+      "depthM": 23.3
+    },
+    {
+      "longitude": 4.8333,
+      "latitude": 53.3333,
+      "depthM": 19.3
+    },
+    {
+      "longitude": 4.9167,
+      "latitude": 53.3333,
+      "depthM": 13.5
+    },
+    {
+      "longitude": 3.8333,
+      "latitude": 53.4167,
+      "depthM": 25.1
+    },
+    {
+      "longitude": 3.9167,
+      "latitude": 53.4167,
+      "depthM": 24.4
+    },
+    {
+      "longitude": 4.0,
+      "latitude": 53.4167,
+      "depthM": 26.0
+    },
+    {
+      "longitude": 4.0833,
+      "latitude": 53.4167,
+      "depthM": 25.3
+    },
+    {
+      "longitude": 4.1667,
+      "latitude": 53.4167,
+      "depthM": 24.1
+    },
+    {
+      "longitude": 4.25,
+      "latitude": 53.4167,
+      "depthM": 24.1
+    },
+    {
+      "longitude": 4.3333,
+      "latitude": 53.4167,
+      "depthM": 25.4
+    },
+    {
+      "longitude": 4.4167,
+      "latitude": 53.4167,
+      "depthM": 24.9
+    },
+    {
+      "longitude": 4.5,
+      "latitude": 53.4167,
+      "depthM": 23.8
+    },
+    {
+      "longitude": 4.5833,
+      "latitude": 53.4167,
+      "depthM": 23.1
+    },
+    {
+      "longitude": 4.6667,
+      "latitude": 53.4167,
+      "depthM": 23.5
+    },
+    {
+      "longitude": 4.75,
+      "latitude": 53.4167,
+      "depthM": 24.3
+    },
+    {
+      "longitude": 4.8333,
+      "latitude": 53.4167,
+      "depthM": 23.8
+    },
+    {
+      "longitude": 4.9167,
+      "latitude": 53.4167,
+      "depthM": 21.5
+    },
+    {
+      "longitude": 3.8333,
+      "latitude": 53.5,
+      "depthM": 28.9
+    },
+    {
+      "longitude": 3.9167,
+      "latitude": 53.5,
+      "depthM": 27.6
+    },
+    {
+      "longitude": 4.0,
+      "latitude": 53.5,
+      "depthM": 27.5
+    },
+    {
+      "longitude": 4.0833,
+      "latitude": 53.5,
+      "depthM": 26.4
+    },
+    {
+      "longitude": 4.1667,
+      "latitude": 53.5,
+      "depthM": 25.5
+    },
+    {
+      "longitude": 4.25,
+      "latitude": 53.5,
+      "depthM": 25.2
+    },
+    {
+      "longitude": 4.3333,
+      "latitude": 53.5,
+      "depthM": 25.0
+    },
+    {
+      "longitude": 4.4167,
+      "latitude": 53.5,
+      "depthM": 24.6
+    },
+    {
+      "longitude": 4.5,
+      "latitude": 53.5,
+      "depthM": 24.5
+    },
+    {
+      "longitude": 4.5833,
+      "latitude": 53.5,
+      "depthM": 25.0
+    },
+    {
+      "longitude": 4.6667,
+      "latitude": 53.5,
+      "depthM": 23.8
+    },
+    {
+      "longitude": 4.75,
+      "latitude": 53.5,
+      "depthM": 23.2
+    },
+    {
+      "longitude": 4.8333,
+      "latitude": 53.5,
+      "depthM": 23.2
+    },
+    {
+      "longitude": 4.9167,
+      "latitude": 53.5,
+      "depthM": 23.7
+    },
+    {
+      "longitude": 3.8333,
+      "latitude": 53.5833,
+      "depthM": 32.6
+    },
+    {
+      "longitude": 3.9167,
+      "latitude": 53.5833,
+      "depthM": 32.5
+    },
+    {
+      "longitude": 4.0,
+      "latitude": 53.5833,
+      "depthM": 32.2
+    },
+    {
+      "longitude": 4.0833,
+      "latitude": 53.5833,
+      "depthM": 31.7
+    },
+    {
+      "longitude": 4.1667,
+      "latitude": 53.5833,
+      "depthM": 30.9
+    },
+    {
+      "longitude": 4.25,
+      "latitude": 53.5833,
+      "depthM": 29.5
+    },
+    {
+      "longitude": 4.3333,
+      "latitude": 53.5833,
+      "depthM": 28.3
+    },
+    {
+      "longitude": 4.4167,
+      "latitude": 53.5833,
+      "depthM": 27.3
+    },
+    {
+      "longitude": 4.5,
+      "latitude": 53.5833,
+      "depthM": 25.6
+    },
+    {
+      "longitude": 4.5833,
+      "latitude": 53.5833,
+      "depthM": 25.7
+    },
+    {
+      "longitude": 4.6667,
+      "latitude": 53.5833,
+      "depthM": 25.4
+    },
+    {
+      "longitude": 4.75,
+      "latitude": 53.5833,
+      "depthM": 23.4
+    },
+    {
+      "longitude": 4.8333,
+      "latitude": 53.5833,
+      "depthM": 22.4
+    },
+    {
+      "longitude": 4.9167,
+      "latitude": 53.5833,
+      "depthM": 21.4
+    },
+    {
+      "longitude": 3.8333,
+      "latitude": 53.6667,
+      "depthM": 36.9
+    },
+    {
+      "longitude": 3.9167,
+      "latitude": 53.6667,
+      "depthM": 36.9
+    },
+    {
+      "longitude": 4.0,
+      "latitude": 53.6667,
+      "depthM": 37.3
+    },
+    {
+      "longitude": 4.0833,
+      "latitude": 53.6667,
+      "depthM": 37.0
+    },
+    {
+      "longitude": 4.1667,
+      "latitude": 53.6667,
+      "depthM": 37.4
+    },
+    {
+      "longitude": 4.25,
+      "latitude": 53.6667,
+      "depthM": 35.0
+    },
+    {
+      "longitude": 4.3333,
+      "latitude": 53.6667,
+      "depthM": 36.1
+    },
+    {
+      "longitude": 4.4167,
+      "latitude": 53.6667,
+      "depthM": 34.6
+    },
+    {
+      "longitude": 4.5,
+      "latitude": 53.6667,
+      "depthM": 33.9
+    },
+    {
+      "longitude": 4.5833,
+      "latitude": 53.6667,
+      "depthM": 32.9
+    },
+    {
+      "longitude": 4.6667,
+      "latitude": 53.6667,
+      "depthM": 31.9
+    },
+    {
+      "longitude": 4.75,
+      "latitude": 53.6667,
+      "depthM": 30.3
+    },
+    {
+      "longitude": 4.8333,
+      "latitude": 53.6667,
+      "depthM": 28.8
+    },
+    {
+      "longitude": 4.9167,
+      "latitude": 53.6667,
+      "depthM": 27.8
+    },
+    {
+      "longitude": 3.8333,
+      "latitude": 53.75,
+      "depthM": 36.4
+    },
+    {
+      "longitude": 3.9167,
+      "latitude": 53.75,
+      "depthM": 38.1
+    },
+    {
+      "longitude": 4.0,
+      "latitude": 53.75,
+      "depthM": 39.0
+    },
+    {
+      "longitude": 4.0833,
+      "latitude": 53.75,
+      "depthM": 38.9
+    },
+    {
+      "longitude": 4.1667,
+      "latitude": 53.75,
+      "depthM": 37.7
+    },
+    {
+      "longitude": 4.25,
+      "latitude": 53.75,
+      "depthM": 37.7
+    },
+    {
+      "longitude": 4.3333,
+      "latitude": 53.75,
+      "depthM": 37.9
+    },
+    {
+      "longitude": 4.4167,
+      "latitude": 53.75,
+      "depthM": 37.4
+    },
+    {
+      "longitude": 4.5,
+      "latitude": 53.75,
+      "depthM": 37.1
+    },
+    {
+      "longitude": 4.5833,
+      "latitude": 53.75,
+      "depthM": 36.2
+    },
+    {
+      "longitude": 4.6667,
+      "latitude": 53.75,
+      "depthM": 34.9
+    },
+    {
+      "longitude": 4.75,
+      "latitude": 53.75,
+      "depthM": 34.4
+    },
+    {
+      "longitude": 4.8333,
+      "latitude": 53.75,
+      "depthM": 34.2
+    },
+    {
+      "longitude": 4.9167,
+      "latitude": 53.75,
+      "depthM": 33.0
+    }
+  ],
+  "ctdProfile": [
+    {
+      "depthM": 0.49,
+      "temperatureC": 13.455,
+      "salinityPsu": 34.414
+    },
+    {
+      "depthM": 1.54,
+      "temperatureC": 13.454,
+      "salinityPsu": 34.414
+    },
+    {
+      "depthM": 2.65,
+      "temperatureC": 13.453,
+      "salinityPsu": 34.414
+    },
+    {
+      "depthM": 3.82,
+      "temperatureC": 13.452,
+      "salinityPsu": 34.414
+    },
+    {
+      "depthM": 5.08,
+      "temperatureC": 13.451,
+      "salinityPsu": 34.414
+    },
+    {
+      "depthM": 6.44,
+      "temperatureC": 13.447,
+      "salinityPsu": 34.414
+    },
+    {
+      "depthM": 7.93,
+      "temperatureC": 13.437,
+      "salinityPsu": 34.414
+    },
+    {
+      "depthM": 9.57,
+      "temperatureC": 13.41,
+      "salinityPsu": 34.416
+    },
+    {
+      "depthM": 11.4,
+      "temperatureC": 13.342,
+      "salinityPsu": 34.419
+    },
+    {
+      "depthM": 13.47,
+      "temperatureC": 13.178,
+      "salinityPsu": 34.425
+    },
+    {
+      "depthM": 15.81,
+      "temperatureC": 12.607,
+      "salinityPsu": 34.455
+    },
+    {
+      "depthM": 18.5,
+      "temperatureC": 11.759,
+      "salinityPsu": 34.507
+    },
+    {
+      "depthM": 21.6,
+      "temperatureC": 11.376,
+      "salinityPsu": 34.542
+    },
+    {
+      "depthM": 25.21,
+      "temperatureC": 11.261,
+      "salinityPsu": 34.542
+    },
+    {
+      "depthM": 29.44,
+      "temperatureC": 11.248,
+      "salinityPsu": 34.544
+    }
+  ]
+}
