@@ -44,6 +44,8 @@ VirtualShip is a command line simulator allowing users to plan and conduct a res
 - Surface drifters (temperature)
 - Argo float deployments (salinity and temperature)
 
+The repository also contains the **VirtualShip Academy** browser vertical slice, a serious-game learning environment that connects a guided interface, `expedition.yaml` and controlled VirtualShip commands. See the [Academy project documentation](docs/academy/index.md) and the [browser demo README](web/README.md).
+
 Along the way, users will encounter realistic problems that may occur during an oceanographic expedition, requiring them to make decisions to adapt their plans accordingly. For example, delays due to equipment failures, pre-depature logistical issues or safety drills.
 
 ## Installation

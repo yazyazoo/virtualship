@@ -6,6 +6,7 @@
 
 Home <self>
 User Guide & Documentation <user-guide/index>
+VirtualShip Academy <academy/index>
 api/index
 contributing/index
 VirtualShip Website <https://virtualship.parcels-code.org/>
