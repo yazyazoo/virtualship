@@ -35,7 +35,7 @@ Provides the reproducible representation of the expedition. Every valid edit upd
 
 Exposes a learning-oriented subset of VirtualShip commands (`init`, `plan`, `run`) and simple read operations. It is not an operating-system shell: metacharacters and dangerous commands are rejected.
 
-The **Web UI → terminal** direction is visible because graphical changes immediately update `expedition.yaml`, `cat expedition.yaml` reads the current state and the audit trail records revisions. The **terminal → Web UI** direction is controlled: `virtualship init` reinitialises the project, `virtualship plan` opens the YAML planner and `virtualship run` starts the same mission under the same safety gates. There are no independent “graphical” and “terminal” configurations.
+The **Web UI → terminal** direction is visible because graphical changes immediately update `expedition.yaml`, `cat expedition.yaml` reads the current state and the audit trail records revisions, vessel inspections and operational transitions. The Terminal tab and command history remain open across Web UI redraws, so every accepted action produces a new observable line. The **terminal → Web UI** direction is controlled: `virtualship init` reinitialises the project, `virtualship plan` opens the YAML planner and `virtualship run` starts the same mission under the same safety gates. There are no independent “graphical” and “terminal” configurations.
 
 ### Files
 

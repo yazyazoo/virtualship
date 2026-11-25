@@ -79,4 +79,27 @@ describe("VirtualShip demo shell", () => {
     expect(app.querySelector("[data-vessel-clearance]")?.textContent).toContain("6.1 m");
     expect(app.querySelector("vs-ship-cutaway")?.getAttribute("data-station-safe")).toBe("true");
   });
+
+  it("keeps the terminal open and logs accepted GUI actions across redraws", () => {
+    const app = document.createElement("virtualship-demo");
+    document.body.append(app);
+
+    app.querySelector<HTMLButtonElement>("[data-sidebar-tab='terminal']")?.click();
+    const input = app.querySelector<HTMLInputElement>("#terminal-input");
+    if (!input) throw new Error("terminal input missing");
+    input.value = "pwd";
+    app.querySelector<HTMLFormElement>(".terminal-form")?.dispatchEvent(
+      new Event("submit", { bubbles: true, cancelable: true }),
+    );
+
+    app.querySelector<HTMLButtonElement>("[data-ship-section='wetlab']")?.click();
+
+    expect(
+      app.querySelector("[data-sidebar-tab='terminal']")?.getAttribute("aria-selected"),
+    ).toBe("true");
+    expect(app.querySelector(".terminal-preview")?.textContent).toContain("$ pwd");
+    expect(app.querySelector(".terminal-preview")?.textContent).toContain(
+      "GUI inspected vessel.wetlab",
+    );
+  });
 });

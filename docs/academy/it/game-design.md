@@ -35,7 +35,7 @@ Rende spaziali e visibili le decisioni: carta, waypoint, nave, compartimenti, av
 
 Espone un sottoinsieme didattico di comandi VirtualShip (`init`, `plan`, `run`) e semplici operazioni di lettura. Non è una shell del sistema operativo: metacaratteri e comandi pericolosi vengono rifiutati.
 
-La direzione **Web UI → terminale** è visibile perché le modifiche grafiche aggiornano immediatamente `expedition.yaml`, `cat expedition.yaml` legge lo stato corrente e l’audit registra le revisioni. La direzione **terminale → Web UI** è controllata: `virtualship init` reinizializza il progetto, `virtualship plan` apre il pianificatore YAML e `virtualship run` avvia la stessa missione applicando gli stessi gate di sicurezza. Non esistono una configurazione “grafica” e una “da terminale” indipendenti.
+La direzione **Web UI → terminale** è visibile perché le modifiche grafiche aggiornano immediatamente `expedition.yaml`, `cat expedition.yaml` legge lo stato corrente e l’audit registra revisioni, ispezioni della nave e transizioni operative. La scheda Terminale e la cronologia dei comandi restano aperte durante i ridisegni della Web UI, così ogni azione accettata produce una nuova riga osservabile. La direzione **terminale → Web UI** è controllata: `virtualship init` reinizializza il progetto, `virtualship plan` apre il pianificatore YAML e `virtualship run` avvia la stessa missione applicando gli stessi gate di sicurezza. Non esistono una configurazione “grafica” e una “da terminale” indipendenti.
 
 ### File
 

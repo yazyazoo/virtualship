@@ -7,6 +7,12 @@ import { renderYamlEditor } from "./yaml-editor";
 
 type SidebarTab = "tutor" | "terminal" | "yaml" | "files";
 
+export interface DeveloperSidebarSession {
+  tab: SidebarTab;
+  terminalLines: string[];
+  openFile: DemoFileName | null;
+}
+
 function escapeHtml(value: string): string {
   return value.replace(/[&<>"']/g, (character) => ({
     "&": "&amp;",
@@ -28,6 +34,21 @@ export class DeveloperSidebar extends HTMLElement {
 
   set locale(value: Locale) { this.localeValue = value; this.render(); }
   set mission(value: InteractiveMissionState) { this.missionValue = value; this.render(); }
+
+  get sessionState(): DeveloperSidebarSession {
+    return {
+      tab: this.tab,
+      terminalLines: [...this.terminalLines],
+      openFile: this.openFile,
+    };
+  }
+
+  set sessionState(value: DeveloperSidebarSession) {
+    this.tab = value.tab;
+    this.terminalLines = [...value.terminalLines];
+    this.openFile = value.openFile;
+    this.render();
+  }
 
   set workspace(value: DemoWorkspace) {
     this.unsubscribe?.();

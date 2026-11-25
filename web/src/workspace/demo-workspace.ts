@@ -150,6 +150,11 @@ export class DemoWorkspace {
     this.notify();
   }
 
+  recordActivity(message: string): void {
+    this.audit.push(`# ${message}`);
+    this.notify();
+  }
+
   exportProject(): string {
     const snapshot: WorkspaceSnapshot = {
       format: "virtualship-demo/v1",

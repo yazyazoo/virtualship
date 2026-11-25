@@ -70,9 +70,17 @@ try {
   await page.mouse.down();
   await page.mouse.move(initialMarkerBox.x + initialMarkerBox.width / 2 - 35, initialMarkerBox.y + initialMarkerBox.height / 2 - 20, { steps: 5 });
   await page.mouse.up();
+  await page.locator("[data-sidebar-tab='terminal']").click();
+  await page.locator("#terminal-input").fill("pwd");
+  await page.locator("#terminal-input").press("Enter");
   await page.locator("[data-recommend-station]").click();
   await page.locator("[data-ship-section='wetlab']").click();
   await page.locator("[data-ship-section='winch']").click();
+  if (await page.locator("[data-sidebar-tab='terminal']").getAttribute("aria-selected") !== "true") throw new Error("Terminal tab did not survive GUI redraw");
+  const terminalText = await page.locator(".terminal-preview").textContent() ?? "";
+  for (const expected of ["$ pwd", "GUI inspected vessel.wetlab", "GUI inspected vessel.winch"]) {
+    if (!terminalText.includes(expected)) throw new Error(`Terminal did not retain GUI activity: ${expected}`);
+  }
   await page.locator(".station-marker").waitFor();
   await page.waitForTimeout(1000);
   const mapDiagnostics = await page.evaluate(() => {
@@ -92,6 +100,7 @@ try {
   if (mapDiagnostics.contourLabels < 4) throw new Error(`Expected four visible isobath labels, found ${mapDiagnostics.contourLabels}`);
   console.log(`Map diagnostics: ${JSON.stringify(mapDiagnostics)}`);
 
+  await page.locator("[data-sidebar-tab='tutor']").click();
   const depart = page.locator("[data-mission-action='depart']");
   if (await depart.isDisabled()) throw new Error("Depart remains disabled after completing planning checks");
   await page.evaluate(() => window.scrollTo(0, 0));

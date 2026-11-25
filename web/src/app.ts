@@ -34,6 +34,7 @@ class VirtualShipDemo extends HTMLElement {
   }
 
   private render(): void {
+    const sidebarSession = this.querySelector<DeveloperSidebar>("vs-developer-sidebar")?.sessionState;
     this.setAttribute("data-stage", this.stage);
     const modeName = this.mode === "academy" ? t(this.locale, "mode.academy") : t(this.locale, "mode.lab");
     const stationEvaluation = this.currentStationEvaluation();
@@ -76,7 +77,12 @@ class VirtualShipDemo extends HTMLElement {
       </div>
     `;
     const sidebar = this.querySelector<DeveloperSidebar>("vs-developer-sidebar");
-    if (sidebar) { sidebar.locale = this.locale; sidebar.mission = this.missionState; sidebar.workspace = this.workspace; }
+    if (sidebar) {
+      if (sidebarSession) sidebar.sessionState = sidebarSession;
+      sidebar.locale = this.locale;
+      sidebar.mission = this.missionState;
+      sidebar.workspace = this.workspace;
+    }
     const map = this.querySelector<OperationalMap>("vs-operational-map");
     if (map) {
       map.locale = this.locale;
@@ -124,7 +130,7 @@ class VirtualShipDemo extends HTMLElement {
         this.render();
       });
     });
-    this.querySelector("vs-developer-sidebar")?.addEventListener("run-mission", () => this.applyMissionAction({ type: "depart" }));
+    this.querySelector("vs-developer-sidebar")?.addEventListener("run-mission", () => this.applyMissionAction({ type: "depart" }, "terminal"));
     this.querySelector("vs-developer-sidebar")?.addEventListener("mission-action", (event) => {
       const action = (event as CustomEvent<{ action: "depart" | "operate" | "undo" | "reset" | "toggle-tutor" }>).detail.action;
       this.applyMissionAction({ type: action });
@@ -166,15 +172,42 @@ class VirtualShipDemo extends HTMLElement {
     queueMicrotask(() => this.querySelector<HTMLButtonElement>("[data-recommend-station]")?.focus());
   }
 
-  private applyMissionAction(action: MissionAction): void {
+  private applyMissionAction(action: MissionAction, source: "gui" | "terminal" = "gui"): void {
     if (action.type === "depart") this.syncStationSafety();
-    this.missionState = transitionMission(this.missionState, action);
+    const previous = this.missionState;
+    this.missionState = transitionMission(previous, action);
+    this.recordMissionActivity(action, previous, this.missionState, source);
     if (this.missionState.phase === "completed") this.stage = "debrief";
     if (action.type === "reset") {
       this.stage = "planning";
       this.workspace.reset(DEMO_EXPEDITION);
     }
     this.render();
+  }
+
+  private recordMissionActivity(
+    action: MissionAction,
+    previous: InteractiveMissionState,
+    next: InteractiveMissionState,
+    source: "gui" | "terminal",
+  ): void {
+    if (previous === next || action.type === "set-station-safety" || action.type === "reset") return;
+    if (action.type === "inspect") {
+      this.workspace.recordActivity(`GUI inspected vessel.${action.section} · mission ${next.phase}`);
+      return;
+    }
+    if (action.type === "depart" || action.type === "operate") {
+      const actor = source === "gui" ? "GUI" : "Terminal";
+      this.workspace.recordActivity(`${actor} mission phase ${previous.phase} → ${next.phase}`);
+      return;
+    }
+    if (action.type === "undo") {
+      this.workspace.recordActivity(`GUI undo · mission ${previous.phase} → ${next.phase}`);
+      return;
+    }
+    if (action.type === "toggle-tutor") {
+      this.workspace.recordActivity(`GUI tutor ${next.tutorVisible ? "shown" : "hidden"} · mission ${next.phase}`);
+    }
   }
 
   private syncStationSafety(): void {
