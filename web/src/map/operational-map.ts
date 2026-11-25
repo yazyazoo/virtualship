@@ -29,16 +29,22 @@ export function operationalMapCameraOptions() {
   };
 }
 
+export interface OperationalMapCamera {
+  center: [number, number];
+  zoom: number;
+}
+
 export class OperationalMap extends HTMLElement {
   private workspaceValue: DemoWorkspace | null = null;
   private localeValue: Locale = "it";
   private phaseValue: MissionPhase = "planning";
   private unsubscribe?: () => void;
   private map?: MapLibreMap;
-  private cameraValue?: { center: [number, number]; zoom: number };
+  private cameraValue?: OperationalMapCamera;
 
   set locale(value: Locale) { this.localeValue = value; this.render(); }
   set phase(value: MissionPhase) { this.phaseValue = value; this.setAttribute("data-phase", value); this.render(); }
+  set camera(value: OperationalMapCamera | undefined) { this.cameraValue = value; }
   set workspace(value: DemoWorkspace) {
     this.unsubscribe?.();
     this.workspaceValue = value;
@@ -142,6 +148,7 @@ export class OperationalMap extends HTMLElement {
       map.on("moveend", () => {
         const center = map.getCenter();
         this.cameraValue = { center: [center.lng, center.lat], zoom: map.getZoom() };
+        this.dispatchEvent(new CustomEvent("map-camera-changed", { bubbles: true, detail: this.cameraValue }));
       });
       map.on("error", () => this.showFallback());
     } catch { this.showFallback(); }
@@ -171,17 +178,18 @@ export class OperationalMap extends HTMLElement {
       "line-width": ["case", ["==", ["get", "depthM"], 35], 2.2, 1.2],
       "line-opacity": 0.9,
     } });
-    map.addLayer({ id: "bathymetry-contour-labels", type: "symbol", source: "bathymetry-contours", layout: {
-      "symbol-placement": "line",
-      "symbol-spacing": 170,
-      "text-field": ["get", "label"],
-      "text-size": 10,
-      "text-allow-overlap": false,
-    }, paint: {
-      "text-color": "#f6f2de",
-      "text-halo-color": "#073342",
-      "text-halo-width": 1.5,
-    } });
+    for (const level of BATHYMETRY_CONTOUR_LEVELS) {
+      const levelFeatures = contours.features.filter((feature) => feature.properties.depthM === level);
+      const feature = levelFeatures[Math.floor(levelFeatures.length / 2)];
+      if (!feature) continue;
+      const [start, end] = feature.geometry.coordinates;
+      const label = document.createElement("span");
+      label.className = `contour-label${level === 35 ? " contour-label-safe" : ""}`;
+      label.textContent = `${level} m`;
+      new maplibregl.Marker({ element: label, anchor: "center" })
+        .setLngLat([(start[0] + end[0]) / 2, (start[1] + end[1]) / 2])
+        .addTo(map);
+    }
     const coverageBounds = bathymetryBounds(MISSION_DATASET.bathymetry);
     if (coverageBounds) {
       const [[west, south], [east, north]] = coverageBounds;
@@ -234,6 +242,9 @@ export class OperationalMap extends HTMLElement {
   private updateStation(longitude: number, latitude: number): void {
     if (!this.workspaceValue || this.workspaceValue.guiLocked || this.phaseValue !== "planning") return;
     const evaluation = evaluateStation(longitude, latitude, MISSION_DATASET.bathymetry, MISSION_DATASET.targetDepthM, MISSION_DATASET.safetyClearanceM);
+    const camera = this.map
+      ? { center: this.map.getCenter().toArray() as [number, number], zoom: this.map.getZoom() }
+      : this.cameraValue;
     this.workspaceValue.applyGuiPatch((expedition) => {
       const waypoint = expedition.schedule.waypoints[1];
       if (!waypoint) return;
@@ -241,7 +252,7 @@ export class OperationalMap extends HTMLElement {
       waypoint.location.latitude = Number(latitude.toFixed(3));
       waypoint.sea_depth_meter = evaluation ? -evaluation.seafloorDepthM : null;
     });
-    this.dispatchEvent(new CustomEvent("station-evaluated", { bubbles: true, detail: evaluation }));
+    this.dispatchEvent(new CustomEvent("station-evaluated", { bubbles: true, detail: { evaluation, camera } }));
   }
 
   private showFallback(): void { const fallback = this.querySelector<HTMLElement>(".map-fallback"); if (fallback) fallback.hidden = false; }

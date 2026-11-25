@@ -8,7 +8,7 @@ import { MISSION_DATASET } from "./demo/mission-dataset";
 import "./lab/lab-preview";
 import type { LabPreview } from "./lab/lab-preview";
 import "./map/operational-map";
-import type { OperationalMap } from "./map/operational-map";
+import type { OperationalMap, OperationalMapCamera } from "./map/operational-map";
 import { initialInteractiveMission, transitionMission, type InteractiveMissionState, type MissionAction, type ShipSection } from "./mission/mission-machine";
 import { missionMetrics } from "./mission/route-metrics";
 import { evaluateStation, type StationEvaluation } from "./mission/rules";
@@ -27,6 +27,7 @@ class VirtualShipDemo extends HTMLElement {
   private stage: DemoStage = "briefing";
   private readonly workspace = new DemoWorkspace(DEMO_EXPEDITION);
   private missionState: InteractiveMissionState = initialInteractiveMission();
+  private mapCamera?: OperationalMapCamera;
 
   connectedCallback(): void {
     this.render();
@@ -77,7 +78,12 @@ class VirtualShipDemo extends HTMLElement {
     const sidebar = this.querySelector<DeveloperSidebar>("vs-developer-sidebar");
     if (sidebar) { sidebar.locale = this.locale; sidebar.mission = this.missionState; sidebar.workspace = this.workspace; }
     const map = this.querySelector<OperationalMap>("vs-operational-map");
-    if (map) { map.locale = this.locale; map.phase = this.missionState.phase; map.workspace = this.workspace; }
+    if (map) {
+      map.locale = this.locale;
+      map.phase = this.missionState.phase;
+      map.camera = this.mapCamera;
+      map.workspace = this.workspace;
+    }
     const ship = this.querySelector<ShipCutaway>("vs-ship-cutaway");
     if (ship) {
       ship.locale = this.locale;
@@ -126,9 +132,13 @@ class VirtualShipDemo extends HTMLElement {
       this.syncStationSafety();
       this.render();
     });
-    this.querySelector("vs-operational-map")?.addEventListener("station-evaluated", () => {
+    this.querySelector("vs-operational-map")?.addEventListener("station-evaluated", (event) => {
+      this.mapCamera = (event as CustomEvent<{ camera?: OperationalMapCamera }>).detail.camera;
       this.syncStationSafety();
       this.render();
+    });
+    this.querySelector("vs-operational-map")?.addEventListener("map-camera-changed", (event) => {
+      this.mapCamera = (event as CustomEvent<OperationalMapCamera>).detail;
     });
     this.querySelector("vs-ship-cutaway")?.addEventListener("ship-section-selected", (event) => {
       const section = (event as CustomEvent<{ section: ShipSection }>).detail.section;

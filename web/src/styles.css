@@ -109,6 +109,8 @@ vs-lab-preview { display: block; }
 .legend-isobath, .legend-safe, .legend-coverage { width: 18px; display: inline-block; border-top: 2px solid var(--ivory); }
 .legend-safe { border-top-color: var(--amber); }
 .legend-coverage { border-top: 1px dashed var(--aqua-soft); }
+.contour-label { padding: 2px 4px; border: 1px solid rgba(246,242,222,.55); border-radius: 4px; color: var(--ivory); background: rgba(4,35,47,.84); box-shadow: 0 2px 7px rgba(0,0,0,.28); font: 8px "Cascadia Code", monospace; pointer-events: none; }
+.contour-label-safe { border-color: rgba(255,182,110,.8); color: var(--amber); }
 .station-card { position: absolute; z-index: 5; top: 14px; right: 14px; width: 205px; display: grid; gap: 5px; padding: 13px; border: 1px solid var(--line); border-radius: 11px; background: rgba(3, 23, 31, .92); box-shadow: 0 14px 35px rgba(0,0,0,.3); }
 .station-card strong { font: 600 15px Georgia, serif; }.station-card span { color: #cbe0df; font-size: 10px; }.station-card small { margin-top: 5px; color: var(--muted); font-size: 9px; line-height: 1.45; }.station-card button { margin-top: 5px; padding: 7px 8px; border: 1px solid var(--line); border-radius: 7px; color: var(--ink); background: rgba(83,201,194,.1); font-size: 9px; cursor: pointer; }
 .station-safe { border-color: rgba(83,201,194,.65); }.station-safe strong { color: var(--aqua-soft); }.station-unsafe { border-color: rgba(255,182,110,.65); }.station-unsafe strong { color: var(--amber); }

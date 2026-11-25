@@ -47,6 +47,11 @@ try {
 
   const initialMarker = page.locator(".station-marker");
   await initialMarker.waitFor();
+  const initialZoom = await page.evaluate(() => document.querySelector("vs-operational-map")?.map?.getZoom());
+  await page.locator(".maplibregl-ctrl-zoom-out").click();
+  await page.waitForTimeout(350);
+  const userZoom = await page.evaluate(() => document.querySelector("vs-operational-map")?.map?.getZoom());
+  if (typeof initialZoom !== "number" || typeof userZoom !== "number" || userZoom >= initialZoom) throw new Error(`Zoom out did not reduce map zoom: ${initialZoom} → ${userZoom}`);
   const initialMarkerBox = await initialMarker.boundingBox();
   if (!initialMarkerBox) throw new Error("Draggable station marker has no screen position");
   await page.mouse.move(initialMarkerBox.x + initialMarkerBox.width / 2, initialMarkerBox.y + initialMarkerBox.height / 2);
@@ -58,11 +63,6 @@ try {
   await page.locator("[data-ship-section='winch']").click();
   await page.locator(".station-marker").waitFor();
   await page.waitForTimeout(1000);
-  const zoomBefore = await page.evaluate(() => document.querySelector("vs-operational-map")?.map?.getZoom());
-  await page.locator(".maplibregl-ctrl-zoom-out").click();
-  await page.waitForTimeout(350);
-  const zoomAfter = await page.evaluate(() => document.querySelector("vs-operational-map")?.map?.getZoom());
-  if (typeof zoomBefore !== "number" || typeof zoomAfter !== "number" || zoomAfter >= zoomBefore) throw new Error(`Zoom out did not reduce map zoom: ${zoomBefore} → ${zoomAfter}`);
   const mapDiagnostics = await page.evaluate(() => {
     const component = document.querySelector("vs-operational-map");
     const marker = document.querySelector(".station-marker");
@@ -73,8 +73,11 @@ try {
       mapZoom: map?.getZoom(),
       layers: map?.getStyle().layers.map((layer) => layer.id),
       routeDots: document.querySelectorAll(".route-dot").length,
+      contourLabels: document.querySelectorAll(".contour-label").length,
     };
   });
+  if (typeof userZoom !== "number" || typeof mapDiagnostics.mapZoom !== "number" || Math.abs(mapDiagnostics.mapZoom - userZoom) > 0.15) throw new Error(`Waypoint update reset user zoom: ${userZoom} → ${mapDiagnostics.mapZoom}`);
+  if (mapDiagnostics.contourLabels < 4) throw new Error(`Expected four visible isobath labels, found ${mapDiagnostics.contourLabels}`);
   console.log(`Map diagnostics: ${JSON.stringify(mapDiagnostics)}`);
 
   const depart = page.locator("[data-mission-action='depart']");
