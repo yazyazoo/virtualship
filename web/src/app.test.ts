@@ -65,4 +65,18 @@ describe("VirtualShip demo shell", () => {
     app.querySelector<HTMLButtonElement>("[data-mission-action='toggle-tutor']")?.click();
     expect(app.textContent).toContain("Prepara la spedizione");
   });
+
+  it("keeps the vessel readout synchronized with the map waypoint", () => {
+    const app = document.createElement("virtualship-demo");
+    document.body.append(app);
+
+    expect(app.querySelector("[data-vessel-floor]")?.textContent).toContain("27.5 m");
+    expect(app.querySelector("vs-ship-cutaway")?.getAttribute("data-station-safe")).toBe("false");
+
+    app.querySelector<HTMLButtonElement>("[data-recommend-station]")?.click();
+
+    expect(app.querySelector("[data-vessel-floor]")?.textContent).toContain("36.1 m");
+    expect(app.querySelector("[data-vessel-clearance]")?.textContent).toContain("6.1 m");
+    expect(app.querySelector("vs-ship-cutaway")?.getAttribute("data-station-safe")).toBe("true");
+  });
 });

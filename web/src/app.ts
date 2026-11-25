@@ -11,7 +11,7 @@ import "./map/operational-map";
 import type { OperationalMap } from "./map/operational-map";
 import { initialInteractiveMission, transitionMission, type InteractiveMissionState, type MissionAction, type ShipSection } from "./mission/mission-machine";
 import { missionMetrics } from "./mission/route-metrics";
-import { evaluateStation } from "./mission/rules";
+import { evaluateStation, type StationEvaluation } from "./mission/rules";
 import "./sidebar/developer-sidebar";
 import type { DeveloperSidebar } from "./sidebar/developer-sidebar";
 import "./ship/ship-cutaway";
@@ -35,6 +35,7 @@ class VirtualShipDemo extends HTMLElement {
   private render(): void {
     this.setAttribute("data-stage", this.stage);
     const modeName = this.mode === "academy" ? t(this.locale, "mode.academy") : t(this.locale, "mode.lab");
+    const stationEvaluation = this.currentStationEvaluation();
     this.innerHTML = `
       <div class="app-frame">
         <header class="topbar">
@@ -78,7 +79,12 @@ class VirtualShipDemo extends HTMLElement {
     const map = this.querySelector<OperationalMap>("vs-operational-map");
     if (map) { map.locale = this.locale; map.phase = this.missionState.phase; map.workspace = this.workspace; }
     const ship = this.querySelector<ShipCutaway>("vs-ship-cutaway");
-    if (ship) { ship.locale = this.locale; ship.phase = this.missionState.phase; ship.selectedSections = this.missionState.inspectedSections; }
+    if (ship) {
+      ship.locale = this.locale;
+      ship.phase = this.missionState.phase;
+      ship.selectedSections = this.missionState.inspectedSections;
+      ship.stationEvaluation = stationEvaluation;
+    }
     const lab = this.querySelector<LabPreview>("vs-lab-preview");
     if (lab) lab.locale = this.locale;
     const briefing = this.querySelector<MissionBriefing>("vs-mission-briefing");
@@ -158,8 +164,16 @@ class VirtualShipDemo extends HTMLElement {
   }
 
   private syncStationSafety(): void {
+    const evaluation = this.currentStationEvaluation();
+    this.missionState = transitionMission(this.missionState, {
+      type: "set-station-safety",
+      safe: !this.workspace.guiLocked && Boolean(evaluation?.safe),
+    });
+  }
+
+  private currentStationEvaluation(): StationEvaluation | null {
     const station = this.workspace.expedition.schedule.waypoints[1]?.location;
-    const evaluation = station
+    return station
       ? evaluateStation(
           station.longitude,
           station.latitude,
@@ -168,10 +182,6 @@ class VirtualShipDemo extends HTMLElement {
           MISSION_DATASET.safetyClearanceM,
         )
       : null;
-    this.missionState = transitionMission(this.missionState, {
-      type: "set-station-safety",
-      safe: !this.workspace.guiLocked && Boolean(evaluation?.safe),
-    });
   }
 
   private academyView(): string {
