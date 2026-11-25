@@ -51,8 +51,8 @@ export class OperationalMap extends HTMLElement {
 
   private copy() {
     return this.localeValue === "it"
-      ? { chart: "CARTA OPERATIVA REALE", area: "Mare del Nord meridionale · Den Helder", hint: "Trascina NS-01 in acque abbastanza profonde", safe: "Stazione idonea", unsafe: "Fondale troppo vicino", outside: "Fuori dalla copertura Copernicus", target: "Obiettivo CTD", floor: "Fondale", clearance: "Margine", recommend: "Mostrami una stazione idonea", offline: "Carta scientifica locale (sfondo online non disponibile)", depth: "Profondità", isobaths: "Isobate", coverage: "Copertura Copernicus" }
-      : { chart: "REAL OPERATIONAL CHART", area: "Southern North Sea · Den Helder", hint: "Drag NS-01 into sufficiently deep water", safe: "Suitable station", unsafe: "Seafloor too close", outside: "Outside Copernicus coverage", target: "CTD target", floor: "Seafloor", clearance: "Clearance", recommend: "Show me a suitable station", offline: "Local scientific chart (online basemap unavailable)", depth: "Depth", isobaths: "Isobaths", coverage: "Copernicus coverage" };
+      ? { chart: "CARTA OPERATIVA REALE", area: "Mare del Nord meridionale · Den Helder", hint: "Trascina NS-01 in acque abbastanza profonde", safe: "Stazione idonea", unsafe: "Fondale troppo vicino", outside: "Fuori dalla copertura Copernicus", target: "Obiettivo CTD", floor: "Fondale", clearance: "Margine", recommend: "Mostrami una stazione idonea", offline: "Carta scientifica locale (sfondo online non disponibile)", depth: "Profondità", isobaths: "Isobate", safeLine: "35 m · soglia sicura", coverage: "Copertura Copernicus" }
+      : { chart: "REAL OPERATIONAL CHART", area: "Southern North Sea · Den Helder", hint: "Drag NS-01 into sufficiently deep water", safe: "Suitable station", unsafe: "Seafloor too close", outside: "Outside Copernicus coverage", target: "CTD target", floor: "Seafloor", clearance: "Clearance", recommend: "Show me a suitable station", offline: "Local scientific chart (online basemap unavailable)", depth: "Depth", isobaths: "Isobaths", safeLine: "35 m · safe threshold", coverage: "Copernicus coverage" };
   }
 
   private station() {
@@ -73,11 +73,11 @@ export class OperationalMap extends HTMLElement {
     const evaluation = evaluateStation(station.longitude, station.latitude, MISSION_DATASET.bathymetry, MISSION_DATASET.targetDepthM, MISSION_DATASET.safetyClearanceM);
     const floorLabel = evaluation ? evaluation.seafloorDepthM.toFixed(1) : "–";
     const clearanceLabel = evaluation ? evaluation.clearanceM.toFixed(1).replace("-", "−") : "–";
-    const bandLabels = BATHYMETRY_DEPTH_BANDS.map((band, index) => {
+    const bandLabels = BATHYMETRY_DEPTH_BANDS.map((band) => {
       const label = Number.isFinite(band.maximumM)
         ? `${band.minimumM}–${band.maximumM} m`
         : `≥${band.minimumM} m`;
-      return `<span><i style="--depth-color:${band.color}"></i>${label}${index === 3 ? " · CTD" : index === 4 ? " · safe" : ""}</span>`;
+      return `<span><i style="--depth-color:${band.color}"></i>${label}</span>`;
     }).join("");
     this.setAttribute("data-station-safe", String(evaluation?.safe ?? false));
     this.innerHTML = `
@@ -89,7 +89,7 @@ export class OperationalMap extends HTMLElement {
           <section class="bathymetry-legend" aria-label="${copy.depth}">
             <strong>${copy.depth} · m</strong>
             <div>${bandLabels}</div>
-            <small><i class="legend-isobath"></i>${copy.isobaths} 10 / 20 / 30 / 35 m · <i class="legend-coverage"></i>${copy.coverage}</small>
+            <small><i class="legend-isobath"></i>${copy.isobaths} 10 / 20 / 30 m · <i class="legend-safe"></i>${copy.safeLine} · <i class="legend-coverage"></i>${copy.coverage}</small>
           </section>
           <section class="station-card ${evaluation?.safe ? "station-safe" : "station-unsafe"}">
             <strong>${evaluation?.safe ? copy.safe : evaluation ? copy.unsafe : copy.outside}</strong>
