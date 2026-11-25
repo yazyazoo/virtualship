@@ -4,6 +4,9 @@
 ZZZ/
 web/node_modules/
 web/dist/
+deploy/vps/secrets/
+deploy/vps/data/
+deploy/vps/backups/
 __pycache__/
 *.pyc
 *.nc

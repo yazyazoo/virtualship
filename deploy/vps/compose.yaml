@@ -13,7 +13,12 @@ services:
     networks:
       - gateway
     volumes:
-      - ./secrets/academy.htpasswd:/run/secrets/academy.htpasswd:ro
+      - type: bind
+        source: ./secrets
+        target: /run/secrets
+        read_only: true
+        bind:
+          create_host_path: false
     read_only: true
     tmpfs:
       - /tmp:size=16m,mode=1777

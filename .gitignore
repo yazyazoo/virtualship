@@ -194,6 +194,7 @@ src/virtualship/_version_setup.py
 # VPS runtime state (never publish)
 /deploy/vps/secrets/
 /deploy/vps/data/
+/deploy/vps/backups/
 
 
 # some files created during paper (JOSS) writing
