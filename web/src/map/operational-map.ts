@@ -8,7 +8,6 @@ import type { MissionPhase } from "../ship/mission-timeline";
 import type { DemoWorkspace } from "../workspace/demo-workspace";
 import {
   BATHYMETRY_CONTOUR_LEVELS,
-  BATHYMETRY_DEPTH_BANDS,
   bathymetryBounds,
   bathymetryContours,
   bathymetryCoverageBoundary,
@@ -79,14 +78,6 @@ export class OperationalMap extends HTMLElement {
     const copy = this.copy();
     const station = this.station();
     const evaluation = evaluateStation(station.longitude, station.latitude, MISSION_DATASET.bathymetry, MISSION_DATASET.targetDepthM, MISSION_DATASET.safetyClearanceM);
-    const floorLabel = evaluation ? evaluation.seafloorDepthM.toFixed(1) : "–";
-    const clearanceLabel = evaluation ? evaluation.clearanceM.toFixed(1).replace("-", "−") : "–";
-    const bandLabels = BATHYMETRY_DEPTH_BANDS.map((band) => {
-      const label = Number.isFinite(band.maximumM)
-        ? `${band.minimumM}–${band.maximumM} m`
-        : `≥${band.minimumM} m`;
-      return `<span><i style="--depth-color:${band.color}"></i>${label}</span>`;
-    }).join("");
     this.setAttribute("data-station-safe", String(evaluation?.safe ?? false));
     this.innerHTML = `
       <article class="instrument-panel map-panel" aria-label="${copy.chart}">
@@ -94,27 +85,15 @@ export class OperationalMap extends HTMLElement {
         <div class="map-shell">
           <div class="maplibre-surface" aria-label="${copy.area}"></div>
           <div class="map-fallback" hidden><span>${copy.offline}</span></div>
-          <section class="bathymetry-legend" aria-label="${copy.depth}">
-            <strong>${copy.depth} · m</strong>
-            <div>${bandLabels}</div>
-            <small><i class="legend-sounding">27.5</i>${copy.soundings} · <i class="legend-isobath"></i>${copy.isobaths} 10 / 20 / 30 m · <i class="legend-safe"></i>${copy.safeLine} · <i class="legend-coverage"></i>${copy.coverage}</small>
-          </section>
-          <section class="station-card ${evaluation?.safe ? "station-safe" : "station-unsafe"}">
-            <strong>${evaluation?.safe ? copy.safe : evaluation ? copy.unsafe : copy.outside}</strong>
-            <span>${copy.target}: ${MISSION_DATASET.targetDepthM} m</span>
-            <span data-station-floor>${copy.floor}: ${floorLabel} m</span>
-            <span data-station-clearance>${copy.clearance}: ${clearanceLabel} m</span>
-            <small>${copy.hint}</small>
-            <button data-recommend-station ${this.workspaceValue.guiLocked || this.phaseValue !== "planning" ? "disabled" : ""}>${copy.recommend}</button>
-          </section>
         </div>
       </article>`;
-    this.querySelector<HTMLButtonElement>("[data-recommend-station]")?.addEventListener("click", () => {
-      const { longitude, latitude } = MISSION_DATASET.recommendedStation;
-      this.updateStation(longitude, latitude);
-    });
     if (navigator.userAgent.toLowerCase().includes("jsdom")) return;
     queueMicrotask(() => this.initialiseMap());
+  }
+
+  recommendStation(): void {
+    const { longitude, latitude } = MISSION_DATASET.recommendedStation;
+    this.updateStation(longitude, latitude);
   }
 
   private initialiseMap(): void {
@@ -137,7 +116,7 @@ export class OperationalMap extends HTMLElement {
               attribution: "© OpenStreetMap contributors",
             },
           },
-          layers: [{ id: "osm", type: "raster", source: "osm", paint: { "raster-opacity": 0.38, "raster-saturation": -0.75, "raster-contrast": -0.08, "raster-brightness-max": 0.9 } }],
+          layers: [{ id: "osm", type: "raster", source: "osm", paint: { "raster-opacity": 0.22, "raster-saturation": -0.85, "raster-contrast": -0.12, "raster-brightness-max": 0.94 } }],
         },
         ...camera,
         minZoom: defaultCamera.minZoom,
@@ -171,7 +150,7 @@ export class OperationalMap extends HTMLElement {
     } });
     map.addLayer({ id: "bathymetry-fill", type: "fill", source: "bathymetry", paint: {
       "fill-color": ["step", ["get", "depthM"], "#8fcbd2", 10, "#b8dce0", 20, "#d6e9e7", 30, "#edf1e5", 35, "#fff8e8"],
-      "fill-opacity": 0.9,
+      "fill-opacity": 1,
       "fill-outline-color": "rgba(28,67,76,.08)",
     } });
     const contours = bathymetryContours(MISSION_DATASET.bathymetry, BATHYMETRY_CONTOUR_LEVELS);
@@ -206,7 +185,7 @@ export class OperationalMap extends HTMLElement {
       safeLabel.className = "safe-zone-label";
       safeLabel.textContent = `${this.localeValue === "it" ? "ZONA OPERATIVA" : "OPERATING ZONE"} ≥35 m`;
       const longitude = safeCells.reduce((sum, cell) => sum + cell.longitude, 0) / safeCells.length;
-      const latitude = safeCells.reduce((sum, cell) => sum + cell.latitude, 0) / safeCells.length;
+      const latitude = Math.min(...safeCells.map((cell) => cell.latitude)) - 0.035;
       new maplibregl.Marker({ element: safeLabel, anchor: "center" }).setLngLat([longitude, latitude]).addTo(map);
     }
     for (const sounding of bathymetrySoundings(MISSION_DATASET.bathymetry, 35).features) {
@@ -231,7 +210,7 @@ export class OperationalMap extends HTMLElement {
       const coverageLabel = document.createElement("span");
       coverageLabel.className = "coverage-limit-label";
       coverageLabel.textContent = copy.coverage.toUpperCase();
-      new maplibregl.Marker({ element: coverageLabel, anchor: "left" }).setLngLat([west + 0.03, north - 0.025]).addTo(map);
+      new maplibregl.Marker({ element: coverageLabel, anchor: "left" }).setLngLat([west + 0.03, north + 0.025]).addTo(map);
     }
     map.addSource("route", { type: "geojson", data: { type: "FeatureCollection", features: [{ type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: [[port.longitude, port.latitude], [station.longitude, station.latitude], [port.longitude, port.latitude]] } }] } });
     map.addLayer({ id: "route-line", type: "line", source: "route", paint: { "line-color": "#ffb66e", "line-width": 5, "line-opacity": 1, "line-dasharray": [2, 1.4] } });

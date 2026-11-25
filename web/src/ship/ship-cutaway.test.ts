@@ -62,13 +62,47 @@ it("replaces vessel depth and clearance when the waypoint evaluation changes", (
   expect(ship.querySelector("[data-vessel-clearance]")?.textContent).toContain("– m");
 });
 
-it("orders technical spaces from stern to bow and explains the sample laboratory", () => {
-  const ship = document.createElement("vs-ship-cutaway");
+it("moves the bridge into a clickable cockpit and leaves three hull compartments", () => {
+  const ship = document.createElement("vs-ship-cutaway") as HTMLElement & { selectedSections: string[] };
   document.body.append(ship);
 
-  expect([...ship.querySelectorAll("[data-ship-section]")].map((section) => section.getAttribute("data-ship-section"))).toEqual([
-    "engine", "bridge", "wetlab", "winch",
+  expect(ship.querySelector(".ship-cockpit[data-ship-section='bridge']")).not.toBeNull();
+  expect([...ship.querySelectorAll(".ship-hull [data-ship-section]")].map((section) => section.getAttribute("data-ship-section"))).toEqual([
+    "engine", "wetlab", "winch",
   ]);
-  expect(ship.textContent).toContain("LAB CAMPIONI");
-  expect(ship.textContent).toContain("acqua e campioni");
+});
+
+it("shows one operational row with exactly three information cards", () => {
+  const ship = document.createElement("vs-ship-cutaway") as HTMLElement & { stationEvaluation: StationEvaluation | null };
+  document.body.append(ship);
+  ship.stationEvaluation = {
+    safe: false,
+    seafloorDepthM: 27.5,
+    clearanceM: -2.5,
+    targetDepthM: 30,
+    cell: { longitude: 4.3333, latitude: 53.3333, depthM: 27.5 },
+  };
+
+  expect(ship.querySelectorAll(".ship-info-grid > section")).toHaveLength(3);
+  expect(ship.querySelector(".depth-key-card")?.textContent).toContain("≥35 m");
+  expect(ship.querySelector(".station-status-card")?.textContent).toContain("Fondale troppo vicino");
+  expect(ship.querySelector(".science-readout")?.textContent).toContain("OPERAZIONE CTD");
+});
+
+it("reveals an academic description for every selected vessel section", () => {
+  const ship = document.createElement("vs-ship-cutaway") as HTMLElement & { selectedSections: string[] };
+  document.body.append(ship);
+  ship.selectedSections = ["engine", "bridge", "wetlab", "winch"];
+
+  const descriptions = [...ship.querySelectorAll("[data-section-description]")];
+  expect(descriptions).toHaveLength(4);
+  expect(descriptions.every((description) => description.textContent?.trim())).toBe(true);
+});
+
+it("disables the moved safe-station action when GUI editing is locked", () => {
+  const ship = document.createElement("vs-ship-cutaway") as HTMLElement & { controlsLocked: boolean };
+  document.body.append(ship);
+  ship.controlsLocked = true;
+
+  expect(ship.querySelector<HTMLButtonElement>("[data-recommend-station]")?.disabled).toBe(true);
 });

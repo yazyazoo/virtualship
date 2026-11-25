@@ -122,11 +122,19 @@ export function bathymetrySoundings(
   safeDepthM: number,
   stride = 3,
 ): SoundingFeatureCollection {
+  if (!cells.length) return { type: "FeatureCollection", features: [] };
+  const longitudes = uniqueSorted(cells.map((cell) => cell.longitude));
+  const latitudes = uniqueSorted(cells.map((cell) => cell.latitude));
+  const spacing = Math.max(1, stride);
+  const deepest = cells.reduce((current, cell) => cell.depthM > current.depthM ? cell : current);
+  const selected = cells.filter((cell) => {
+    const longitudeIndex = longitudes.indexOf(cell.longitude);
+    const latitudeIndex = latitudes.indexOf(cell.latitude);
+    return (longitudeIndex % spacing === 0 && latitudeIndex % spacing === 0) || cell === deepest;
+  });
   return {
     type: "FeatureCollection",
-    features: cells
-      .filter((cell, index) => cell.depthM >= safeDepthM || index % Math.max(1, stride) === 0)
-      .map((cell) => ({
+    features: selected.map((cell) => ({
         type: "Feature",
         properties: { depthM: cell.depthM, label: cell.depthM.toFixed(1), safe: cell.depthM >= safeDepthM },
         geometry: { type: "Point", coordinates: [cell.longitude, cell.latitude] },

@@ -90,6 +90,7 @@ class VirtualShipDemo extends HTMLElement {
       ship.phase = this.missionState.phase;
       ship.selectedSections = this.missionState.inspectedSections;
       ship.stationEvaluation = stationEvaluation;
+      ship.controlsLocked = this.workspace.guiLocked;
     }
     const lab = this.querySelector<LabPreview>("vs-lab-preview");
     if (lab) lab.locale = this.locale;
@@ -143,6 +144,9 @@ class VirtualShipDemo extends HTMLElement {
     this.querySelector("vs-ship-cutaway")?.addEventListener("ship-section-selected", (event) => {
       const section = (event as CustomEvent<{ section: ShipSection }>).detail.section;
       this.applyMissionAction({ type: "inspect", section });
+    });
+    this.querySelector("vs-ship-cutaway")?.addEventListener("recommend-station", () => {
+      this.querySelector<OperationalMap>("vs-operational-map")?.recommendStation();
     });
     this.querySelector("vs-mission-briefing")?.addEventListener("start-planning", () => {
       this.stage = "planning";

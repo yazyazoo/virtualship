@@ -45,11 +45,16 @@ describe("bathymetry presentation data", () => {
     expect(boundary.features.some((feature) => feature.geometry.coordinates.every(([longitude]) => longitude === 4.5))).toBe(false);
   });
 
-  it("selects sparse chart soundings while retaining every safe cell", () => {
-    const soundings = bathymetrySoundings(GRID, 35, 3);
+  it("selects an uncluttered grid of soundings while retaining the deepest cell", () => {
+    const denseGrid = Array.from({ length: 16 }, (_, index) => ({
+      longitude: index % 4,
+      latitude: Math.floor(index / 4),
+      depthM: index + 10,
+    }));
+    const soundings = bathymetrySoundings(denseGrid, 35, 2);
 
-    expect(soundings.features.some((feature) => feature.properties.depthM === 40)).toBe(true);
-    expect(soundings.features.length).toBeLessThanOrEqual(GRID.length);
+    expect(soundings.features.some((feature) => feature.properties.depthM === 25)).toBe(true);
+    expect(soundings.features.length).toBeLessThanOrEqual(5);
   });
 
   it("returns no geographic presentation for an empty dataset", () => {
