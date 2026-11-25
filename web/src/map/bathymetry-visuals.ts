@@ -3,11 +3,11 @@ import type { BathymetryCell } from "../mission/rules";
 export const BATHYMETRY_CONTOUR_LEVELS = [10, 20, 30, 35] as const;
 
 export const BATHYMETRY_DEPTH_BANDS = [
-  { minimumM: 0, maximumM: 10, color: "#b7e3de" },
-  { minimumM: 10, maximumM: 20, color: "#72c7c7" },
-  { minimumM: 20, maximumM: 30, color: "#318da5" },
-  { minimumM: 30, maximumM: 35, color: "#176486" },
-  { minimumM: 35, maximumM: Number.POSITIVE_INFINITY, color: "#083d67" },
+  { minimumM: 0, maximumM: 10, color: "#8fcbd2" },
+  { minimumM: 10, maximumM: 20, color: "#b8dce0" },
+  { minimumM: 20, maximumM: 30, color: "#d6e9e7" },
+  { minimumM: 30, maximumM: 35, color: "#edf1e5" },
+  { minimumM: 35, maximumM: Number.POSITIVE_INFINITY, color: "#fff8e8" },
 ] as const;
 
 export type BathymetryBounds = [[number, number], [number, number]];
@@ -18,9 +18,31 @@ interface ContourFeature {
   geometry: { type: "LineString"; coordinates: [[number, number], [number, number]] };
 }
 
+interface LineFeature {
+  type: "Feature";
+  properties: Record<string, never>;
+  geometry: { type: "LineString"; coordinates: [[number, number], [number, number]] };
+}
+
+interface SoundingFeature {
+  type: "Feature";
+  properties: { depthM: number; label: string; safe: boolean };
+  geometry: { type: "Point"; coordinates: [number, number] };
+}
+
 export interface ContourFeatureCollection {
   type: "FeatureCollection";
   features: ContourFeature[];
+}
+
+export interface LineFeatureCollection {
+  type: "FeatureCollection";
+  features: LineFeature[];
+}
+
+export interface SoundingFeatureCollection {
+  type: "FeatureCollection";
+  features: SoundingFeature[];
 }
 
 function uniqueSorted(values: readonly number[]): number[] {
@@ -53,6 +75,63 @@ export function bathymetryBounds(cells: readonly BathymetryCell[]): BathymetryBo
     [minimumLongitude - longitudeMargin, minimumLatitude - latitudeMargin],
     [maximumLongitude + longitudeMargin, maximumLatitude + latitudeMargin],
   ];
+}
+
+function pointKey([longitude, latitude]: [number, number]): string {
+  return `${longitude.toFixed(6)}:${latitude.toFixed(6)}`;
+}
+
+function edgeKey(edge: [[number, number], [number, number]]): string {
+  return edge.map(pointKey).sort().join("|");
+}
+
+export function bathymetryCoverageBoundary(cells: readonly BathymetryCell[]): LineFeatureCollection {
+  if (!cells.length) return { type: "FeatureCollection", features: [] };
+  const longitudeMargin = halfCellSize(uniqueSorted(cells.map((cell) => cell.longitude)));
+  const latitudeMargin = halfCellSize(uniqueSorted(cells.map((cell) => cell.latitude)));
+  const edges = new Map<string, { coordinates: [[number, number], [number, number]]; count: number }>();
+
+  for (const cell of cells) {
+    const west = cell.longitude - longitudeMargin;
+    const east = cell.longitude + longitudeMargin;
+    const south = cell.latitude - latitudeMargin;
+    const north = cell.latitude + latitudeMargin;
+    const cellEdges: Array<[[number, number], [number, number]]> = [
+      [[west, south], [east, south]],
+      [[east, south], [east, north]],
+      [[east, north], [west, north]],
+      [[west, north], [west, south]],
+    ];
+    for (const coordinates of cellEdges) {
+      const key = edgeKey(coordinates);
+      const previous = edges.get(key);
+      edges.set(key, { coordinates, count: (previous?.count ?? 0) + 1 });
+    }
+  }
+
+  return {
+    type: "FeatureCollection",
+    features: [...edges.values()]
+      .filter(({ count }) => count === 1)
+      .map(({ coordinates }) => ({ type: "Feature", properties: {}, geometry: { type: "LineString", coordinates } })),
+  };
+}
+
+export function bathymetrySoundings(
+  cells: readonly BathymetryCell[],
+  safeDepthM: number,
+  stride = 3,
+): SoundingFeatureCollection {
+  return {
+    type: "FeatureCollection",
+    features: cells
+      .filter((cell, index) => cell.depthM >= safeDepthM || index % Math.max(1, stride) === 0)
+      .map((cell) => ({
+        type: "Feature",
+        properties: { depthM: cell.depthM, label: cell.depthM.toFixed(1), safe: cell.depthM >= safeDepthM },
+        geometry: { type: "Point", coordinates: [cell.longitude, cell.latitude] },
+      })),
+  };
 }
 
 function interpolate(

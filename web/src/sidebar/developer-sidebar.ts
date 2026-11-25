@@ -80,7 +80,7 @@ export class DeveloperSidebar extends HTMLElement {
       return `<section class="tutor-panel tutor-paused"><p class="panel-kicker">${it ? "TUTOR IN PAUSA" : "TUTOR PAUSED"}</p><h3>${it ? "Esplora in autonomia" : "Explore independently"}</h3><p>${it ? "Mappa, nave, YAML e terminale restano disponibili. Puoi riattivare l’assistenza in qualsiasi momento." : "Map, vessel, YAML and terminal remain available. You can restore guidance at any time."}</p><button class="tutor-primary" data-mission-action="toggle-tutor">${it ? "Riattiva tutor" : "Restore tutor"}</button></section>`;
     }
     const phaseCopy = {
-      planning: it ? ["Prepara la spedizione", "Porta NS-01 su un fondale che lasci almeno 5 m sotto la CTD. Poi ispeziona LAB UMIDO e VERRICELLO sulla nave.", "Salpa verso NS-01"] : ["Prepare the expedition", "Move NS-01 to a seafloor that leaves at least 5 m below the CTD. Then inspect WET LAB and WINCH aboard.", "Depart for NS-01"],
+      planning: it ? ["Prepara la spedizione", "Porta NS-01 nella zona operativa ≥35 m. Poi ispeziona LABORATORIO CAMPIONI e VERRICELLO sulla nave.", "Salpa verso NS-01"] : ["Prepare the expedition", "Move NS-01 into the ≥35 m operating zone. Then inspect SAMPLE LAB and WINCH aboard.", "Depart for NS-01"],
       underway: it ? ["Navigazione", "La rotta è valida. Ora porta la nave alla stazione oceanografica.", "Arriva a NS-01"] : ["Underway", "The route is valid. Now bring the vessel to the oceanographic station.", "Arrive at NS-01"],
       stationkeeping: it ? ["Mantieni la posizione", "Il ponte stabilizza la nave contro vento e corrente prima della calata.", "Autorizza la calata"] : ["Hold station", "The bridge stabilises the vessel against wind and current before deployment.", "Authorise deployment"],
       lowering: it ? ["Calata CTD", "Il cavo porta la rosetta a 30 m mantenendo il margine di sicurezza dal fondale.", "Raggiungi 30 m"] : ["CTD deployment", "The cable lowers the rosette to 30 m while preserving seafloor clearance.", "Reach 30 m"],
@@ -96,13 +96,13 @@ export class DeveloperSidebar extends HTMLElement {
       <p>${body}</p>
       <div class="learning-checks">
         <span class="${mission.stationSafe ? "check-done" : ""}">${mission.stationSafe ? "✓" : "○"} ${it ? "Stazione sicura" : "Safe station"}</span>
-        <span class="${inspected.includes("wetlab") ? "check-done" : ""}">${inspected.includes("wetlab") ? "✓" : "○"} ${it ? "Laboratorio ispezionato" : "Wet lab inspected"}</span>
+        <span class="${inspected.includes("wetlab") ? "check-done" : ""}">${inspected.includes("wetlab") ? "✓" : "○"} ${it ? "Laboratorio campioni ispezionato" : "Sample lab inspected"}</span>
         <span class="${inspected.includes("winch") ? "check-done" : ""}">${inspected.includes("winch") ? "✓" : "○"} ${it ? "Verricello ispezionato" : "Winch inspected"}</span>
       </div>
       <button class="tutor-primary" data-mission-action="${mission.phase === "planning" ? "depart" : mission.phase === "completed" ? "reset" : "operate"}" ${mission.phase === "planning" && !ready ? "disabled" : ""}>${action}</button>
       <button class="tutor-secondary" data-mission-action="undo" ${mission.history.length ? "" : "disabled"}>↶ ${it ? "Annulla ultimo passo" : "Undo last step"}</button>
       <button class="tutor-secondary" data-mission-action="toggle-tutor">${it ? "Nascondi tutor" : "Hide tutor"}</button>
-      <details><summary>${it ? "Perché lo facciamo?" : "Why do we do this?"}</summary><p>${it ? "Una CTD non deve urtare il fondale. La profondità scelta deve quindi superare l’obiettivo scientifico più il margine di sicurezza." : "A CTD must not strike the seafloor. The selected depth must exceed the science target plus the safety clearance."}</p></details>
+      <details><summary>${it ? "Perché lo facciamo? Cos’è il laboratorio campioni?" : "Why do we do this? What is the sample lab?"}</summary><p>${it ? "Una CTD non deve urtare il fondale: servono 30 m operativi più 5 m di margine. Il laboratorio campioni (wet lab) è l’ambiente lavabile di bordo dove si trattano acqua e campioni appena recuperati, con lavelli, scarichi e strumenti resistenti all’umidità." : "A CTD must not strike the seafloor: the 30 m target needs a 5 m clearance. The sample lab (wet lab) is the washable onboard space where recovered water and samples are processed, with sinks, drains and moisture-resistant instruments."}</p></details>
     </section>`;
   }
 

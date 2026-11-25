@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
 
 import type { BathymetryCell } from "../mission/rules";
-import { BATHYMETRY_CONTOUR_LEVELS, bathymetryBounds, bathymetryContours } from "./bathymetry-visuals";
+import {
+  BATHYMETRY_CONTOUR_LEVELS,
+  bathymetryBounds,
+  bathymetryContours,
+  bathymetryCoverageBoundary,
+  bathymetrySoundings,
+} from "./bathymetry-visuals";
 
 const GRID: BathymetryCell[] = [
   { longitude: 4, latitude: 53, depthM: 5 },
@@ -29,11 +35,30 @@ describe("bathymetry presentation data", () => {
     expect(contours.features.every((feature) => feature.geometry.coordinates.length === 2)).toBe(true);
   });
 
+  it("draws the perimeter of real cells without shared internal edges", () => {
+    const boundary = bathymetryCoverageBoundary([
+      { longitude: 4, latitude: 53, depthM: 20 },
+      { longitude: 5, latitude: 53, depthM: 30 },
+    ]);
+
+    expect(boundary.features).toHaveLength(6);
+    expect(boundary.features.some((feature) => feature.geometry.coordinates.every(([longitude]) => longitude === 4.5))).toBe(false);
+  });
+
+  it("selects sparse chart soundings while retaining every safe cell", () => {
+    const soundings = bathymetrySoundings(GRID, 35, 3);
+
+    expect(soundings.features.some((feature) => feature.properties.depthM === 40)).toBe(true);
+    expect(soundings.features.length).toBeLessThanOrEqual(GRID.length);
+  });
+
   it("returns no geographic presentation for an empty dataset", () => {
     expect(bathymetryBounds([])).toBeNull();
     expect(bathymetryContours([], BATHYMETRY_CONTOUR_LEVELS)).toEqual({
       type: "FeatureCollection",
       features: [],
     });
+    expect(bathymetryCoverageBoundary([])).toEqual({ type: "FeatureCollection", features: [] });
+    expect(bathymetrySoundings([], 35)).toEqual({ type: "FeatureCollection", features: [] });
   });
 });

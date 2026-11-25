@@ -39,8 +39,8 @@ export class ShipCutaway extends HTMLElement {
     this.setAttribute("data-samples", String(sampleCount));
     this.setAttribute("data-station-safe", this.stationEvaluationValue ? String(this.stationEvaluationValue.safe) : "outside");
     const copy = this.localeValue === "it"
-      ? { operations: "OPERAZIONI NAVE · CLICCA LE SEZIONI", bridge: "PONTE", wet: "LAB UMIDO", winch: "VERRICELLO CTD", engine: "MOTORI", operation: "OPERAZIONE CTD", ready: "Ispeziona nave e pianifica NS-01", profile: "Temperatura · profilo di profondità", target: "Obiettivo", floor: "Fondale", clearance: "Margine" }
-      : { operations: "VESSEL OPERATIONS · CLICK SECTIONS", bridge: "BRIDGE", wet: "WET LAB", winch: "CTD WINCH", engine: "ENGINE", operation: "CTD OPERATION", ready: "Inspect vessel and plan NS-01", profile: "Temperature · depth profile", target: "Target", floor: "Seafloor", clearance: "Clearance" };
+      ? { operations: "OPERAZIONI NAVE · CLICCA LE SEZIONI", bridge: "PLANCIA", wet: "LAB CAMPIONI", wetNote: "Analizza acqua e campioni", winch: "VERRICELLO CTD", engine: "MOTORI", operation: "OPERAZIONE CTD", ready: "Ispeziona nave e pianifica NS-01", profile: "Temperatura · profilo di profondità", target: "Obiettivo", floor: "Fondale", clearance: "Margine" }
+      : { operations: "VESSEL OPERATIONS · CLICK SECTIONS", bridge: "BRIDGE", wet: "SAMPLE LAB", wetNote: "Processes water and samples", winch: "CTD WINCH", engine: "ENGINES", operation: "CTD OPERATION", ready: "Inspect vessel and plan NS-01", profile: "Temperature · depth profile", target: "Target", floor: "Seafloor", clearance: "Clearance" };
     const phaseLabels: Record<MissionPhase, string> = this.localeValue === "it"
       ? { planning: "pianificazione", underway: "in navigazione", stationkeeping: "in stazione", lowering: "calata", sampling: "campionamento", recovering: "recupero", completed: "completata" }
       : { planning: "planning", underway: "underway", stationkeeping: "stationkeeping", lowering: "lowering", sampling: "sampling", recovering: "recovering", completed: "completed" };
@@ -51,7 +51,7 @@ export class ShipCutaway extends HTMLElement {
       ? Math.min(92, 62 + (this.stationEvaluationValue.seafloorDepthM / 40) * 26)
       : 92;
     this.setAttribute("data-crew-active", String(crewActive));
-    const room = (section: ShipSection, label: string, crew: string) => `<button type="button" class="ship-room ${section} ${this.selectedSectionsValue.includes(section) ? "ship-room-selected" : ""}" data-ship-section="${section}"><span>${label}</span><i class="crew ${crew} ${crewActive ? "crew-working" : ""}"></i></button>`;
+    const room = (section: ShipSection, label: string, crew: string, note = "") => `<button type="button" class="ship-room ${section} ${this.selectedSectionsValue.includes(section) ? "ship-room-selected" : ""}" data-ship-section="${section}"><span>${label}</span>${note ? `<small>${note}</small>` : ""}<i class="crew ${crew} ${crewActive ? "crew-working" : ""}"></i></button>`;
     this.innerHTML = `
       <article class="instrument-panel ship-placeholder">
         <div class="panel-heading">
@@ -68,10 +68,10 @@ export class ShipCutaway extends HTMLElement {
               <div class="working-deck"><i class="deck-crane"></i><i class="deck-winch"></i></div>
             </div>
             <div class="ship-hull">
-              ${room("bridge", copy.bridge, "crew-a")}
-              ${room("wetlab", copy.wet, "crew-b")}
-              ${room("winch", copy.winch, "crew-c")}
               ${room("engine", copy.engine, "crew-d")}
+              ${room("bridge", copy.bridge, "crew-a")}
+              ${room("wetlab", copy.wet, "crew-b", copy.wetNote)}
+              ${room("winch", copy.winch, "crew-c")}
             </div>
             <i class="ship-rudder" aria-hidden="true"></i>
             <i class="ship-propeller" aria-hidden="true"></i>

@@ -11,6 +11,8 @@ import {
   BATHYMETRY_DEPTH_BANDS,
   bathymetryBounds,
   bathymetryContours,
+  bathymetryCoverageBoundary,
+  bathymetrySoundings,
 } from "./bathymetry-visuals";
 
 function roundCoordinate(value: number): number {
@@ -57,8 +59,8 @@ export class OperationalMap extends HTMLElement {
 
   private copy() {
     return this.localeValue === "it"
-      ? { chart: "CARTA OPERATIVA REALE", area: "Mare del Nord meridionale · Den Helder", hint: "Trascina NS-01 in acque abbastanza profonde", safe: "Stazione idonea", unsafe: "Fondale troppo vicino", outside: "Fuori dalla copertura Copernicus", target: "Obiettivo CTD", floor: "Fondale", clearance: "Margine", recommend: "Mostrami una stazione idonea", offline: "Carta scientifica locale (sfondo online non disponibile)", depth: "Profondità", isobaths: "Isobate", safeLine: "35 m · soglia sicura", coverage: "Copertura Copernicus" }
-      : { chart: "REAL OPERATIONAL CHART", area: "Southern North Sea · Den Helder", hint: "Drag NS-01 into sufficiently deep water", safe: "Suitable station", unsafe: "Seafloor too close", outside: "Outside Copernicus coverage", target: "CTD target", floor: "Seafloor", clearance: "Clearance", recommend: "Show me a suitable station", offline: "Local scientific chart (online basemap unavailable)", depth: "Depth", isobaths: "Isobaths", safeLine: "35 m · safe threshold", coverage: "Copernicus coverage" };
+      ? { chart: "CARTA BATIMETRICA OPERATIVA", area: "Mare del Nord meridionale · Den Helder", hint: "Trascina NS-01 nella zona operativa ≥35 m", safe: "Stazione idonea", unsafe: "Fondale troppo vicino", outside: "Fuori dalla copertura Copernicus", target: "Obiettivo CTD", floor: "Fondale", clearance: "Margine", recommend: "Mostrami una stazione idonea", offline: "Carta scientifica locale (sfondo online non disponibile)", depth: "Profondità", isobaths: "Isobate", soundings: "Scandagli", safeLine: "Zona operativa ≥35 m", coverage: "Limite dati Copernicus" }
+      : { chart: "OPERATIONAL BATHYMETRIC CHART", area: "Southern North Sea · Den Helder", hint: "Drag NS-01 into the ≥35 m operating zone", safe: "Suitable station", unsafe: "Seafloor too close", outside: "Outside Copernicus coverage", target: "CTD target", floor: "Seafloor", clearance: "Clearance", recommend: "Show me a suitable station", offline: "Local scientific chart (online basemap unavailable)", depth: "Depth", isobaths: "Isobaths", soundings: "Soundings", safeLine: "Operating zone ≥35 m", coverage: "Copernicus data limit" };
   }
 
   private station() {
@@ -95,7 +97,7 @@ export class OperationalMap extends HTMLElement {
           <section class="bathymetry-legend" aria-label="${copy.depth}">
             <strong>${copy.depth} · m</strong>
             <div>${bandLabels}</div>
-            <small><i class="legend-isobath"></i>${copy.isobaths} 10 / 20 / 30 m · <i class="legend-safe"></i>${copy.safeLine} · <i class="legend-coverage"></i>${copy.coverage}</small>
+            <small><i class="legend-sounding">27.5</i>${copy.soundings} · <i class="legend-isobath"></i>${copy.isobaths} 10 / 20 / 30 m · <i class="legend-safe"></i>${copy.safeLine} · <i class="legend-coverage"></i>${copy.coverage}</small>
           </section>
           <section class="station-card ${evaluation?.safe ? "station-safe" : "station-unsafe"}">
             <strong>${evaluation?.safe ? copy.safe : evaluation ? copy.unsafe : copy.outside}</strong>
@@ -135,7 +137,7 @@ export class OperationalMap extends HTMLElement {
               attribution: "© OpenStreetMap contributors",
             },
           },
-          layers: [{ id: "osm", type: "raster", source: "osm", paint: { "raster-opacity": 0.58, "raster-saturation": -0.42, "raster-contrast": 0.08 } }],
+          layers: [{ id: "osm", type: "raster", source: "osm", paint: { "raster-opacity": 0.38, "raster-saturation": -0.75, "raster-contrast": -0.08, "raster-brightness-max": 0.9 } }],
         },
         ...camera,
         minZoom: defaultCamera.minZoom,
@@ -157,6 +159,7 @@ export class OperationalMap extends HTMLElement {
   private addScientificLayers(): void {
     const map = this.map;
     if (!map || !this.workspaceValue) return;
+    const copy = this.copy();
     const station = this.station();
     const port = MISSION_DATASET.port;
     const cellSize = 0.0415;
@@ -167,16 +170,16 @@ export class OperationalMap extends HTMLElement {
       ]] } })),
     } });
     map.addLayer({ id: "bathymetry-fill", type: "fill", source: "bathymetry", paint: {
-      "fill-color": ["step", ["get", "depthM"], "#b7e3de", 10, "#72c7c7", 20, "#318da5", 30, "#176486", 35, "#083d67"],
-      "fill-opacity": 0.78,
-      "fill-outline-color": "rgba(225,248,244,.16)",
+      "fill-color": ["step", ["get", "depthM"], "#8fcbd2", 10, "#b8dce0", 20, "#d6e9e7", 30, "#edf1e5", 35, "#fff8e8"],
+      "fill-opacity": 0.9,
+      "fill-outline-color": "rgba(28,67,76,.08)",
     } });
     const contours = bathymetryContours(MISSION_DATASET.bathymetry, BATHYMETRY_CONTOUR_LEVELS);
     map.addSource("bathymetry-contours", { type: "geojson", data: contours });
     map.addLayer({ id: "bathymetry-contours", type: "line", source: "bathymetry-contours", paint: {
-      "line-color": ["case", ["==", ["get", "depthM"], 35], "#ffb66e", "#f6f2de"],
-      "line-width": ["case", ["==", ["get", "depthM"], 35], 2.2, 1.2],
-      "line-opacity": 0.9,
+      "line-color": ["case", ["==", ["get", "depthM"], 35], "#b72f62", "#315761"],
+      "line-width": ["case", ["==", ["get", "depthM"], 35], 2.8, 1.15],
+      "line-opacity": 0.95,
     } });
     for (const level of BATHYMETRY_CONTOUR_LEVELS) {
       const levelFeatures = contours.features.filter((feature) => feature.properties.depthM === level);
@@ -190,20 +193,45 @@ export class OperationalMap extends HTMLElement {
         .setLngLat([(start[0] + end[0]) / 2, (start[1] + end[1]) / 2])
         .addTo(map);
     }
+    const safeCells = MISSION_DATASET.bathymetry.filter((cell) => cell.depthM >= MISSION_DATASET.targetDepthM + MISSION_DATASET.safetyClearanceM);
+    const safeBoundary = bathymetryCoverageBoundary(safeCells);
+    map.addSource("safe-operating-zone", { type: "geojson", data: safeBoundary });
+    map.addLayer({ id: "safe-operating-zone", type: "line", source: "safe-operating-zone", paint: {
+      "line-color": "#087d74",
+      "line-width": 3,
+      "line-opacity": 1,
+    } });
+    if (safeCells.length) {
+      const safeLabel = document.createElement("span");
+      safeLabel.className = "safe-zone-label";
+      safeLabel.textContent = `${this.localeValue === "it" ? "ZONA OPERATIVA" : "OPERATING ZONE"} ≥35 m`;
+      const longitude = safeCells.reduce((sum, cell) => sum + cell.longitude, 0) / safeCells.length;
+      const latitude = safeCells.reduce((sum, cell) => sum + cell.latitude, 0) / safeCells.length;
+      new maplibregl.Marker({ element: safeLabel, anchor: "center" }).setLngLat([longitude, latitude]).addTo(map);
+    }
+    for (const sounding of bathymetrySoundings(MISSION_DATASET.bathymetry, 35).features) {
+      const marker = document.createElement("span");
+      marker.className = `depth-sounding${sounding.properties.safe ? " depth-sounding-safe" : ""}`;
+      marker.textContent = sounding.properties.label;
+      marker.setAttribute("aria-label", `${copy.depth} ${sounding.properties.label} m`);
+      new maplibregl.Marker({ element: marker, anchor: "center" }).setLngLat(sounding.geometry.coordinates).addTo(map);
+    }
     const coverageBounds = bathymetryBounds(MISSION_DATASET.bathymetry);
     if (coverageBounds) {
-      const [[west, south], [east, north]] = coverageBounds;
+      const [[west], [, north]] = coverageBounds;
       map.addSource("copernicus-coverage", { type: "geojson", data: {
-        type: "Feature",
-        properties: {},
-        geometry: { type: "Polygon", coordinates: [[[west, south], [east, south], [east, north], [west, north], [west, south]]] },
+        ...bathymetryCoverageBoundary(MISSION_DATASET.bathymetry),
       } });
       map.addLayer({ id: "copernicus-coverage", type: "line", source: "copernicus-coverage", paint: {
-        "line-color": "#93e1d5",
-        "line-width": 1.5,
-        "line-dasharray": [4, 3],
-        "line-opacity": 0.9,
+        "line-color": "#b72f62",
+        "line-width": 2.6,
+        "line-dasharray": [3, 2],
+        "line-opacity": 1,
       } });
+      const coverageLabel = document.createElement("span");
+      coverageLabel.className = "coverage-limit-label";
+      coverageLabel.textContent = copy.coverage.toUpperCase();
+      new maplibregl.Marker({ element: coverageLabel, anchor: "left" }).setLngLat([west + 0.03, north - 0.025]).addTo(map);
     }
     map.addSource("route", { type: "geojson", data: { type: "FeatureCollection", features: [{ type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: [[port.longitude, port.latitude], [station.longitude, station.latitude], [port.longitude, port.latitude]] } }] } });
     map.addLayer({ id: "route-line", type: "line", source: "route", paint: { "line-color": "#ffb66e", "line-width": 5, "line-opacity": 1, "line-dasharray": [2, 1.4] } });

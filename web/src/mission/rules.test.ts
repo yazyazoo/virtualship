@@ -31,4 +31,14 @@ describe("mission geographic rules", () => {
   it("rejects a waypoint outside the precomputed grid coverage", () => {
     expect(evaluateStation(6.2, 55.0, cells, 30, 5)).toBeNull();
   });
+
+  it("rejects a gap inside the rectangular extent when no Copernicus cell covers it", () => {
+    const sparseGrid = [
+      { longitude: 4, latitude: 53, depthM: 36 },
+      { longitude: 5, latitude: 53, depthM: 38 },
+      { longitude: 4, latitude: 54, depthM: 37 },
+    ];
+
+    expect(evaluateStation(4.9, 53.9, sparseGrid, 30, 5)).toBeNull();
+  });
 });

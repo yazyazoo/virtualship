@@ -66,6 +66,8 @@ it("explains the Copernicus depth bands and operational isobaths", () => {
   expect(legend?.textContent).toContain("30–35 m");
   expect(legend?.textContent).toContain("≥35 m");
   expect(legend?.textContent).toContain("Isobate");
+  expect(legend?.textContent).toContain("Scandagli");
+  expect(legend?.textContent).toContain("Limite dati");
 });
 
 it("updates floor and clearance from the dragged waypoint without stale values", () => {

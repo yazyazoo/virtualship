@@ -61,3 +61,14 @@ it("replaces vessel depth and clearance when the waypoint evaluation changes", (
   expect(ship.querySelector("[data-vessel-floor]")?.textContent).toContain("– m");
   expect(ship.querySelector("[data-vessel-clearance]")?.textContent).toContain("– m");
 });
+
+it("orders technical spaces from stern to bow and explains the sample laboratory", () => {
+  const ship = document.createElement("vs-ship-cutaway");
+  document.body.append(ship);
+
+  expect([...ship.querySelectorAll("[data-ship-section]")].map((section) => section.getAttribute("data-ship-section"))).toEqual([
+    "engine", "bridge", "wetlab", "winch",
+  ]);
+  expect(ship.textContent).toContain("LAB CAMPIONI");
+  expect(ship.textContent).toContain("acqua e campioni");
+});

@@ -25,14 +25,10 @@ export function nearestBathymetry(
   }, undefined);
 }
 
-function withinAxisCoverage(value: number, coordinates: readonly number[]): boolean {
+function axisCoverageMargin(coordinates: readonly number[]): number {
   const unique = [...new Set(coordinates)].sort((left, right) => left - right);
-  const first = unique[0];
-  const last = unique.at(-1);
-  if (first === undefined || last === undefined) return false;
   const spacings = unique.slice(1).map((coordinate, index) => coordinate - (unique[index] ?? coordinate)).filter((spacing) => spacing > 0);
-  const margin = spacings.length ? Math.min(...spacings) / 2 : 0.05;
-  return value >= first - margin && value <= last + margin;
+  return spacings.length ? Math.min(...spacings) / 2 : 0.05;
 }
 
 export function evaluateStation(
@@ -42,12 +38,14 @@ export function evaluateStation(
   targetDepthM = 30,
   safetyClearanceM = 5,
 ): StationEvaluation | null {
-  if (
-    !withinAxisCoverage(longitude, cells.map((cell) => cell.longitude)) ||
-    !withinAxisCoverage(latitude, cells.map((cell) => cell.latitude))
-  ) return null;
   const cell = nearestBathymetry(longitude, latitude, cells);
   if (!cell) return null;
+  const longitudeMargin = axisCoverageMargin(cells.map((candidate) => candidate.longitude));
+  const latitudeMargin = axisCoverageMargin(cells.map((candidate) => candidate.latitude));
+  if (
+    Math.abs(longitude - cell.longitude) > longitudeMargin + Number.EPSILON ||
+    Math.abs(latitude - cell.latitude) > latitudeMargin + Number.EPSILON
+  ) return null;
   const clearanceM = cell.depthM - targetDepthM;
   return {
     safe: clearanceM >= safetyClearanceM,
