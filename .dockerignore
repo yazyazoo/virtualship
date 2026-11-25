@@ -1,0 +1,13 @@
+.git/
+.github/
+.superpowers/
+ZZZ/
+web/node_modules/
+web/dist/
+__pycache__/
+*.pyc
+*.nc
+*.zarr
+*.zip
+results/
+
