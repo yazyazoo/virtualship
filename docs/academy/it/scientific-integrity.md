@@ -1,5 +1,7 @@
 # Integrità scientifica e provenienza
 
+**Lingua:** Italiano · [English](../en/scientific-integrity.md)
+
 ## Principio
 
 Ogni elemento deve dichiarare se è **osservato/modellato da una fonte esterna**, **derivato localmente**, **simulato a fini didattici** o **pianificato**. Una visualizzazione convincente non deve far sembrare reale ciò che non lo è.

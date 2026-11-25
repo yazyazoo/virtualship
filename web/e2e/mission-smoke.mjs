@@ -34,7 +34,8 @@ try {
       panelHeadings: [...document.querySelectorAll(".panel-heading")].map((heading) => heading.getBoundingClientRect().height),
       map: rect("vs-operational-map"),
       ship: rect("vs-ship-cutaway"),
-      legend: rect(".bathymetry-legend"),
+      depthKey: rect(".depth-key-card"),
+      shipInfoPanels: document.querySelectorAll(".ship-info-grid > section").length,
       sections,
     };
   });
@@ -42,8 +43,19 @@ try {
   if (!layoutDiagnostics.missionRibbon || layoutDiagnostics.missionRibbon.height > 62) throw new Error(`Mission header is not compact: ${JSON.stringify(layoutDiagnostics.missionRibbon)}`);
   if (layoutDiagnostics.panelHeadings.some((height) => height > 52)) throw new Error(`Panel headers are not compact: ${JSON.stringify(layoutDiagnostics.panelHeadings)}`);
   if (!layoutDiagnostics.map || !layoutDiagnostics.ship || layoutDiagnostics.map.height < layoutDiagnostics.ship.height * 1.7) throw new Error(`Map is not vertically dominant: ${JSON.stringify({ map: layoutDiagnostics.map, ship: layoutDiagnostics.ship })}`);
-  if (!layoutDiagnostics.legend || layoutDiagnostics.legend.width < 300 || layoutDiagnostics.legend.height < 30) throw new Error(`Bathymetry legend is not visible: ${JSON.stringify(layoutDiagnostics.legend)}`);
-  if (layoutDiagnostics.sections.length !== 4 || layoutDiagnostics.sections.some((section) => section.width < 80 || section.height < 45)) throw new Error(`Vessel sections are not all usable: ${JSON.stringify(layoutDiagnostics.sections)}`);
+  if (!layoutDiagnostics.depthKey || layoutDiagnostics.depthKey.width < 60 || layoutDiagnostics.depthKey.height < 55) throw new Error(`Depth legend is not visible beside the vessel: ${JSON.stringify(layoutDiagnostics.depthKey)}`);
+  if (layoutDiagnostics.shipInfoPanels !== 3) throw new Error(`Expected three vessel information panels, found ${layoutDiagnostics.shipInfoPanels}`);
+  const unusableSection = layoutDiagnostics.sections.find((section) => section.width < 80 || section.height < (section.name === "bridge" ? 35 : 45));
+  if (layoutDiagnostics.sections.length !== 4 || unusableSection) throw new Error(`Vessel sections are not all usable: ${JSON.stringify(layoutDiagnostics.sections)}`);
+
+  await page.locator("[data-sidebar-tab='files']").click();
+  for (const name of ["expedition.yaml", "checkpoint.yaml", "results/ctd_profiles.json", "README.md"]) {
+    await page.locator(`[data-file-name="${name}"]`).click();
+    await page.locator(".file-viewer").waitFor();
+    if (!(await page.locator(".file-viewer").textContent()).includes(name)) throw new Error(`File viewer did not open ${name}`);
+    await page.locator("[data-file-back]").click();
+  }
+  await page.locator("[data-sidebar-tab='tutor']").click();
 
   const initialMarker = page.locator(".station-marker");
   await initialMarker.waitFor();

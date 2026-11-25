@@ -1,5 +1,7 @@
 # Game design
 
+**Lingua:** Italiano · [English](../en/game-design.md)
+
 ## Premessa
 
 Il giocatore è parte del team scientifico della **RV Virtual Explorer**. Riceve un obiettivo di ricerca, prepara nave e configurazione, sceglie dove e come campionare, esegue le operazioni e difende le proprie decisioni nel debrief.
@@ -17,7 +19,9 @@ La Academy è un serious game a missioni. La vertical slice attuale è lineare n
 7. **Debrief** — collegare la decisione iniziale alle prove prodotte e alle conseguenze operative.
 8. **Iterazione** — ripetere, confrontare o passare a una missione più autonoma.
 
-## Tre viste, un solo progetto
+## Quattro viste, un solo progetto
+
+Il tratto distintivo della Academy è la **sincronizzazione bidirezionale controllata**. Web UI, YAML, terminale e file non sono dimostrazioni separate: osservano e, quando autorizzato, modificano lo stesso `DemoWorkspace`, con revisione e audit condivisi.
 
 ### GUI
 
@@ -31,6 +35,12 @@ Rende spaziali e visibili le decisioni: carta, waypoint, nave, compartimenti, av
 
 Espone un sottoinsieme didattico di comandi VirtualShip (`init`, `plan`, `run`) e semplici operazioni di lettura. Non è una shell del sistema operativo: metacaratteri e comandi pericolosi vengono rifiutati.
 
+La direzione **Web UI → terminale** è visibile perché le modifiche grafiche aggiornano immediatamente `expedition.yaml`, `cat expedition.yaml` legge lo stato corrente e l’audit registra le revisioni. La direzione **terminale → Web UI** è controllata: `virtualship init` reinizializza il progetto, `virtualship plan` apre il pianificatore YAML e `virtualship run` avvia la stessa missione applicando gli stessi gate di sicurezza. Non esistono una configurazione “grafica” e una “da terminale” indipendenti.
+
+### File
+
+Il pannello File rende apribili `expedition.yaml`, `checkpoint.yaml`, `results/ctd_profiles.json` e `README.md`. La vista di `expedition.yaml` legge sempre il workspace corrente; gli altri file espongono checkpoint, risultato scientifico e istruzioni del progetto in forma leggibile.
+
 ## Meccaniche attuali
 
 | Meccanica | Comportamento | Apprendimento |
@@ -41,6 +51,8 @@ Espone un sottoinsieme didattico di comandi VirtualShip (`init`, `plan`, `run`) 
 | Ispezione nave | Compartimenti cliccabili con descrizione. | L’operazione scientifica dipende da sistemi e persone. |
 | Tutor reversibile | Può essere nascosto, ripristinato e affiancato all’undo. | L’assistenza è scaffolding, non una modalità separata. |
 | YAML con revisioni | Applica, blocca o archivia bozze. | Configurazione, validazione e recupero dagli errori. |
+| Sincronizzazione Web UI–terminale | Modifiche grafiche, YAML, comandi e file convergono sullo stesso workspace versionato. | Equivalenza tra rappresentazione visuale e riproducibile. |
+| File apribili | Mostra configurazione corrente, checkpoint, profilo CTD e README. | Leggere gli artefatti che rendono verificabile una missione. |
 | Mission state | Planning → underway → stationkeeping → lowering → sampling → recovering → completed. | La misura è una sequenza operativa, non un singolo click. |
 | Debrief | Decisione → evidenza → conseguenza. | Valutazione del ragionamento oltre al completamento. |
 

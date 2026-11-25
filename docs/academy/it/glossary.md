@@ -1,5 +1,7 @@
 # Glossario
 
+**Lingua:** Italiano · [English](../en/glossary.md)
+
 ## Academy
 
 Ambiente didattico web che usa missioni, vincoli e feedback per insegnare la progettazione di spedizioni VirtualShip.

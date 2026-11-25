@@ -1,5 +1,7 @@
 # Sviluppo, verifica e distribuzione
 
+**Lingua:** Italiano · [English](../en/operations.md)
+
 ## Requisiti locali
 
 - Node.js 24 o successivo;

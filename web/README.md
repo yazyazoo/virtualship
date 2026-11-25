@@ -31,7 +31,7 @@ npm --prefix web run build
 4. Inspect the sample lab and CTD winch, then watch vessel, cable and profile advance through the mission phases. Use the debrief to connect decision, evidence and consequence.
 5. Switch to Parcels Lab. Explain the future Browser → Gateway → Spider/Slurm contract and point out that this screen is explicitly simulated.
 
-Use the IT/EN selector at any time. The documented progression is **Triennale**, **Magistrale**, **Tesi Parcels** and **Flying Dutchman — Master**. Only the introductory Bachelor/Triennale vertical slice is currently implemented; see [Levels and progression](../docs/academy/levels.md).
+Use the IT/EN selector at any time. The documented progression is **Bachelor**, **Master's**, **Parcels Thesis** and **Flying Dutchman — Master**. Only the introductory Bachelor/Triennale vertical slice is currently implemented; see [Levels and progression](../docs/academy/en/levels.md).
 
 ## What is real and what is simulated
 
@@ -44,4 +44,4 @@ Use the IT/EN selector at any time. The documented progression is **Triennale**,
 
 ## Verification
 
-See [Development, verification and deployment](../docs/academy/operations.md) for release and VPS procedures.
+See [Development, verification and deployment](../docs/academy/en/operations.md) for release and VPS procedures.

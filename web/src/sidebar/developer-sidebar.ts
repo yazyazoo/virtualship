@@ -2,7 +2,7 @@ import type { DemoWorkspace } from "../workspace/demo-workspace";
 import { type Locale, t } from "../i18n";
 import { canDepart, type InteractiveMissionState } from "../mission/mission-machine";
 import { executeControlledCommand } from "./controlled-terminal";
-import { renderFileExplorer } from "./file-explorer";
+import { type DemoFileName, renderFileExplorer } from "./file-explorer";
 import { renderYamlEditor } from "./yaml-editor";
 
 type SidebarTab = "tutor" | "terminal" | "yaml" | "files";
@@ -23,6 +23,7 @@ export class DeveloperSidebar extends HTMLElement {
   private localeValue: Locale = "it";
   private missionValue: InteractiveMissionState | null = null;
   private terminalLines: string[] = [];
+  private openFile: DemoFileName | null = null;
   private unsubscribe?: () => void;
 
   set locale(value: Locale) { this.localeValue = value; this.render(); }
@@ -64,7 +65,7 @@ export class DeveloperSidebar extends HTMLElement {
         ? editor.replace("<textarea", "<textarea readonly").replace("data-yaml-apply", "data-yaml-apply disabled")
         : editor;
     }
-    if (this.tab === "files") return renderFileExplorer();
+    if (this.tab === "files") return renderFileExplorer(this.workspaceValue, this.localeValue, this.openFile);
     const intro = this.localeValue === "it"
       ? ["Console controllata VirtualShip Academy", "Digita help per elencare i comandi sicuri."]
       : ["VirtualShip Academy controlled console", "Type help to list safe commands."];
@@ -110,9 +111,20 @@ export class DeveloperSidebar extends HTMLElement {
     this.querySelectorAll<HTMLButtonElement>("[data-sidebar-tab]").forEach((button) =>
       button.addEventListener("click", () => {
         this.tab = button.dataset.sidebarTab as SidebarTab;
+        if (this.tab === "files") this.openFile = null;
         this.render();
       }),
     );
+    this.querySelectorAll<HTMLButtonElement>("[data-file-name]").forEach((button) =>
+      button.addEventListener("click", () => {
+        this.openFile = button.dataset.fileName as DemoFileName;
+        this.render();
+      }),
+    );
+    this.querySelector<HTMLButtonElement>("[data-file-back]")?.addEventListener("click", () => {
+      this.openFile = null;
+      this.render();
+    });
     this.querySelector<HTMLFormElement>(".terminal-form")?.addEventListener("submit", (event) => {
       event.preventDefault();
       const input = this.querySelector<HTMLInputElement>("#terminal-input");

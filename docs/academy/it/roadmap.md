@@ -1,5 +1,7 @@
 # Roadmap
 
+**Lingua:** Italiano · [English](../en/roadmap.md)
+
 ## Principio
 
 Ogni milestone deve produrre un incremento didatticamente valutabile. Aggiungere schermate senza una competenza, una prova e un criterio di completamento non costituisce avanzamento della Academy.

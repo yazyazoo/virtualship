@@ -1,5 +1,7 @@
 # Livelli e progressione
 
+**Lingua:** Italiano · [English](../en/levels.md)
+
 ## Modello di progressione
 
 I quattro livelli non rappresentano soltanto “facile, medio, difficile”. Cambiano il tipo di responsabilità assegnata allo studente:

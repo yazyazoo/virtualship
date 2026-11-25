@@ -1,5 +1,7 @@
 # Visione e obiettivi didattici
 
+**Lingua:** Italiano · [English](../en/vision.md)
+
 ## Visione
 
 VirtualShip Academy insegna a progettare, giustificare ed eseguire una spedizione oceanografica digitale. Lo studente assume il ruolo di responsabile scientifico di bordo: deve leggere la carta, scegliere stazioni e strumenti, rispettare i vincoli operativi, produrre una configurazione riproducibile e interpretare i risultati.

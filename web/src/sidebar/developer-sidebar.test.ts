@@ -49,4 +49,39 @@ describe("developer sidebar", () => {
 
     expect(sidebar.textContent).toContain("GUI updated ship_config.ship_speed_knots");
   });
+
+  it("opens every file in the file explorer and returns to the list", () => {
+    const { sidebar } = setup();
+    sidebar.querySelector<HTMLButtonElement>("[data-sidebar-tab='files']")?.click();
+
+    const expectedFiles = [
+      ["expedition.yaml", "ship_config:"],
+      ["checkpoint.yaml", "mission:"],
+      ["results/ctd_profiles.json", '"depth_meter"'],
+      ["README.md", "VirtualShip Academy"],
+    ] as const;
+
+    for (const [name, expectedContent] of expectedFiles) {
+      const button = sidebar.querySelector<HTMLButtonElement>(`[data-file-name="${name}"]`);
+      expect(button, `${name} should be listed`).not.toBeNull();
+      button?.click();
+
+      const viewer = sidebar.querySelector<HTMLElement>(".file-viewer");
+      expect(viewer?.textContent).toContain(name);
+      expect(viewer?.textContent).toContain(expectedContent);
+
+      sidebar.querySelector<HTMLButtonElement>("[data-file-back]")?.click();
+    }
+  });
+
+  it("shows the current workspace YAML when expedition.yaml is opened", () => {
+    const { sidebar, workspace } = setup();
+    workspace.applyGuiPatch((expedition) => {
+      expedition.ship_config.ship_speed_knots = 8;
+    });
+    sidebar.querySelector<HTMLButtonElement>("[data-sidebar-tab='files']")?.click();
+    sidebar.querySelector<HTMLButtonElement>('[data-file-name="expedition.yaml"]')?.click();
+
+    expect(sidebar.querySelector(".file-viewer")?.textContent).toContain("ship_speed_knots: 8");
+  });
 });

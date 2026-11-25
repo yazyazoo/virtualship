@@ -1,5 +1,7 @@
 # Missione 01 — Stazione CTD nel Mare del Nord
 
+**Lingua:** Italiano · [English](../en/mission-01.md)
+
 ## Stato
 
 **Implementata e giocabile** nella vertical slice browser.

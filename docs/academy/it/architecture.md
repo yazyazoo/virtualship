@@ -1,5 +1,7 @@
 # Architettura tecnica
 
+**Lingua:** Italiano · [English](../en/architecture.md)
+
 ## Ambito
 
 La repository contiene due prodotti collegati ma distinti:
@@ -47,6 +49,8 @@ La Academy non sostituisce il simulatore upstream. Costruisce un’interfaccia d
 ```
 
 `DemoWorkspace` è la fonte autorevole della spedizione. Espone copie strutturate, serializza lo YAML, valida le modifiche e notifica i componenti. Non esistono copie indipendenti per GUI e terminale.
+
+La sincronizzazione è bidirezionale ma intenzionalmente mediata: la Web UI applica patch validate che terminale e file leggono subito; il terminale può reinizializzare il workspace, aprire il pianificatore o richiedere l’avvio della missione, producendo aggiornamenti immediati nella UI. Il terminale controllato non offre scrittura arbitraria o una seconda configurazione nascosta.
 
 ## Stati della missione
 
@@ -101,6 +105,16 @@ planning → underway → stationkeeping → lowering
 
 Il terminale riconosce soltanto comandi esplicitamente implementati. Rifiuta metacaratteri, redirezioni e comandi di sistema. `virtualship run` avvia la missione precompilata: non esegue il pacchetto Python né un processo esterno.
 
+### Sincronizzazione Web UI, terminale e file
+
+1. Una modifica nella carta o nei controlli di configurazione passa da `applyGuiPatch` e incrementa la revisione.
+2. YAML, `cat expedition.yaml` e il visualizzatore File leggono la nuova serializzazione dello stesso workspace.
+3. `virtualship init` modifica il workspace dal terminale e provoca il ridisegno dei componenti sottoscritti.
+4. `virtualship plan` porta l’utente alla vista YAML; `virtualship run` emette la stessa azione di avvio usata dalla UI.
+5. Ogni canale applica gli stessi blocchi per bozza invalida e gli stessi gate della missione.
+
+Il pannello File è un visualizzatore sicuro e in sola lettura. Tutte le voci sono apribili; `expedition.yaml` è dinamico, mentre checkpoint, profilo CTD e README sono artefatti didattici versionati.
+
 ## Sicurezza della distribuzione
 
 Il container di produzione:
@@ -129,7 +143,7 @@ Credenziali Copernicus e HPC devono rimanere sul lato server. Il browser riceve 
 
 - unit test per regole geografiche, macchina a stati e validazione;
 - component test per Web Components e sincronizzazione;
-- integration test per flusso GUI/YAML/missione;
+- integration test per flusso GUI/YAML/terminale/file/missione;
 - build TypeScript come gate statico;
 - smoke browser per layout, mappa e ciclo completo;
 - health check del container e dell’endpoint pubblico dopo il deploy.
