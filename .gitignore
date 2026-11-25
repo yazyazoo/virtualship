@@ -188,6 +188,9 @@ src/virtualship/_version_setup.py
 .vscode/
 .DS_Store
 
+# Local planning material (never publish)
+/ZZZ/
+
 
 # some files created during paper (JOSS) writing
 docs/paper/**/*.txt
