@@ -17,6 +17,13 @@ describe("VPS deployment", () => {
     expect(dockerignore).toMatch(/^web\/node_modules\/$/m);
   });
 
+  test("keeps VPS credentials and runtime data out of Git", () => {
+    const gitignore = readFileSync(resolve(process.cwd(), "..", ".gitignore"), "utf8");
+
+    expect(gitignore).toMatch(/^\/deploy\/vps\/secrets\/$/m);
+    expect(gitignore).toMatch(/^\/deploy\/vps\/data\/$/m);
+  });
+
   test("builds the web app into a dedicated unprivileged container", () => {
     const dockerfile = deploymentFile("Dockerfile");
 
